@@ -13,6 +13,10 @@ namespace NewHorizon.Services
 
         public string GetSecretValue(string key)
         {
+            if (_configuration[key] == null)
+            {
+                return Environment.GetEnvironmentVariable(key) ?? string.Empty;
+            }
             return _configuration[key];
         }
     }
