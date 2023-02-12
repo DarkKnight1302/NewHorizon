@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="GoogleApi" Version="4.5.2" />
     <PackageReference Include="Hangfire.Core" Version="1.7.32" />
+    <PackageReference Include="MailKit" Version="3.5.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.18.0" />

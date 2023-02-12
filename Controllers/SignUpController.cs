@@ -4,6 +4,7 @@ using NewHorizon.Constants;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace NewHorizon.Controllers
 {
@@ -25,6 +26,11 @@ namespace NewHorizon.Controllers
         {
             if (!ModelState.IsValid)
             {
+                return BadRequest(ModelState);
+            }
+            if (!Regex.IsMatch(request.Username, @"^[a-zA-Z0-9]+$"))
+            {
+                ModelState.AddModelError("Username", "Username can only contain letters and numbers.");
                 return BadRequest(ModelState);
             }
             bool validToken = await this.signUpTokenService.VerifySignUpTokenAsync(request.SignUpToken, request.CorporateEmailId);
