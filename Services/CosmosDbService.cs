@@ -12,8 +12,7 @@ namespace NewHorizon.Services
 
         public CosmosDbService(ILogger<TrafficDurationController> logger, ISecretService secretService)
         {
-            logger.LogWarning($"Value of env connection string new2: {Environment.GetEnvironmentVariable("Test")}");
-            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING_NEW_HORIZONDATABASE") ?? secretService.GetSecretValue("CONNECTION_STRING_NEW_HORIZONDATABASE");
+            string connectionString = secretService.GetSecretValue("CONNECTION_STRING_NEW_HORIZONDATABASE");
             this.cosmosClient = new CosmosClient(connectionString);
         }
 
@@ -25,6 +24,11 @@ namespace NewHorizon.Services
                 Database database = cosmosClient.GetDatabase(databaseName);
                 return database.GetContainer(containerName);
             });
+        }
+
+        public Container GetContainerFromColleagueCastle(string containerName)
+        {
+            return this.GetContainer("ColleagueCastle", containerName);
         }
     }
 }
