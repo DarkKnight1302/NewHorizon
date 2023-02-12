@@ -29,6 +29,8 @@ builder.Services.AddSingleton<ISecretService, SecretService>();
 builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<ISessionTokenManager, SessionTokenManager>();
+builder.Services.AddSingleton<IOtpService, OtpService>();
+builder.Services.AddSingleton<ISignUpTokenService, SignUpTokenService>();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 
 var app = builder.Build();

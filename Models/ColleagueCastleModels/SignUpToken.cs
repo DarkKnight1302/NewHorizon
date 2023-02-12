@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace NewHorizon.Models.ColleagueCastleModels
 {
-    public class OtpObject
+    public class SignUpToken
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
@@ -11,9 +11,9 @@ namespace NewHorizon.Models.ColleagueCastleModels
         [JsonProperty(PropertyName = "uid")]
         public string Uid { get; set; }
 
-        public string EmailAddress;
+        public string EmailAddress { get; set; }
 
-        public int Otp { get; set; }
+        public string Token { get; set; }
 
         public DateTime Expiry { get; set; }
     }
