@@ -3,12 +3,13 @@ using NewHorizon.Models;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
+using System.ComponentModel;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {
     public class SessionTokenManager : ISessionTokenManager
     {
-        private readonly Container _container;
+        private readonly Microsoft.Azure.Cosmos.Container _container;
 
         public SessionTokenManager(ICosmosDbService cosmosDbService)
         {
@@ -36,6 +37,24 @@ namespace NewHorizon.Services.ColleagueCastleServices
             await _container.UpsertItemAsync(session).ConfigureAwait(false);
 
             return sessionToken;
+        }
+
+        public async Task<string> GetUserNameFromToken(string sessionToken)
+        {
+            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.Token = @value")
+            .WithParameter("@value", sessionToken);
+
+            // Execute the query and retrieve the results
+            FeedIterator<UserSessionToken> queryResultSet = _container.GetItemQueryIterator<UserSessionToken>(queryDefinition);
+            while (queryResultSet.HasMoreResults)
+            {
+                FeedResponse<UserSessionToken> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
+                if (currentResultSet != null && currentResultSet.Count > 0)
+                {
+                    return currentResultSet.First().UserId;
+                }
+            }
+            return null;
         }
 
         public async Task<bool> ValidateSessionToken(string userId, string sessionToken)

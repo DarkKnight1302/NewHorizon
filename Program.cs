@@ -36,6 +36,7 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<ISessionTokenManager, SessionTokenManager>();
 builder.Services.AddSingleton<IOtpService, OtpService>();
 builder.Services.AddSingleton<ISignUpTokenService, SignUpTokenService>();
+builder.Services.AddMemoryCache();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 
 var app = builder.Build();

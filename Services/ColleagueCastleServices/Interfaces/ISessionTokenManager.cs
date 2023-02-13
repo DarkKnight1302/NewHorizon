@@ -5,5 +5,7 @@
         public Task<string> GenerateSessionToken(string userId);
 
         public Task<bool> ValidateSessionToken(string userId, string sessionToken);
+
+        public Task<string> GetUserNameFromToken(string sessionToken);
     }
 }
