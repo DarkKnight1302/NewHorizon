@@ -21,6 +21,7 @@
                 this.signUpTokenService = signUpTokenService;
             }
 
+            [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("generate-and-send")]
             public async Task<IActionResult> GenerateAndSendOTP(string emailAddress)
             {
@@ -40,6 +41,7 @@
                 }
             }
 
+            [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("validate")]
             public async Task<IActionResult> ValidateOTP(string emailAddress, int otp)
             {

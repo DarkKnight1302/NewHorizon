@@ -19,6 +19,7 @@ public class PlaceSuggestionController : ControllerBase
         this.googlePlaceService = googlePlaceService;
     }
 
+    [ApiExplorerSettings(GroupName = "v1")]
     [HttpGet(Name = "GetPlaceSugggestion")]
     public async Task<IEnumerable<PlacePrediction>> Get(string inputString) 
     {

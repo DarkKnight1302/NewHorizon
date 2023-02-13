@@ -21,6 +21,7 @@ namespace NewHorizon.Controllers
             this.signUpTokenService = signUpTokenService;
         }
 
+        [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
         {

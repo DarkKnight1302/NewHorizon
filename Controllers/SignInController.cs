@@ -19,6 +19,7 @@ namespace NewHorizon.Controllers
             this.sessionTokenManager = sessionTokenManager;
         }
 
+        [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> SignIn([FromBody] LoginData loginData)
         {
