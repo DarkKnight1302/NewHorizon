@@ -25,15 +25,15 @@ namespace NewHorizon.Controllers
             var user = await _userRepository.GetUserByUserNameAsync(loginData.Username).ConfigureAwait(false);
             if (user == null)
             {
-                return NotFound();
+                return Unauthorized("Incorrect Username or password");
             }
 
             if (!PasswordHashingUtil.VerifyPassword(loginData.Password, user.HashedPassword, user.Salt))
             {
-                return Unauthorized();
+                return Unauthorized("Incorrect Username or password");
             }
             string sessionToken = await this.sessionTokenManager.GenerateSessionToken(user.UserName).ConfigureAwait(false);
-            return Ok(sessionToken);
+            return Ok(new SignInResponse(sessionToken));
         }
     }
 }
