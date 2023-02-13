@@ -3,7 +3,6 @@ using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace NewHorizon.Controllers
 {
