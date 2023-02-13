@@ -3,7 +3,7 @@
     using System;
     using System.Security.Cryptography;
 
-    public static class PasswordHashingUtil
+    public static class HashingUtil
     {
         private const int SaltSize = 16; // 128 bit salt
         private const int KeySize = 32; // 256 bit key
@@ -32,6 +32,17 @@
         {
             var (expectedHashedPassword, _) = HashPassword(password, salt);
             return hashedPassword == expectedHashedPassword;
+        }
+
+        public static string HashEmail(string email)
+        {
+            using (SHA256 hash = SHA256.Create())
+            {
+                byte[] emailBytes = System.Text.Encoding.UTF8.GetBytes(email);
+                byte[] hashBytes = hash.ComputeHash(emailBytes);
+
+                return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            }
         }
     }
 }

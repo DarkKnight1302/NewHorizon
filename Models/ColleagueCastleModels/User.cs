@@ -22,5 +22,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
         public string HashedPassword { get; set; }
 
         public string Company { get; set; }
+
+        public string CorporateEmailHash { get; set; }
     }
 }

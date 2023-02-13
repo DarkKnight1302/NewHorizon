@@ -28,7 +28,7 @@ namespace NewHorizon.Controllers
                 return Unauthorized("Incorrect Username or password");
             }
 
-            if (!PasswordHashingUtil.VerifyPassword(loginData.Password, user.HashedPassword, user.Salt))
+            if (!HashingUtil.VerifyPassword(loginData.Password, user.HashedPassword, user.Salt))
             {
                 return Unauthorized("Incorrect Username or password");
             }

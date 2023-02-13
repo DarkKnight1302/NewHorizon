@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Cosmos;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.Interfaces;
@@ -22,7 +24,14 @@ namespace NewHorizon.Repositories
             {
                 return false;
             }
-            (string HashedPassword, string salt) passwordAndSalt = PasswordHashingUtil.HashPassword(password);
+            string corporateEmailHash = HashingUtil.HashEmail(corporateEmailId);
+            bool userExist = await this.UserExistByCorporateEmailHash(corporateEmailHash).ConfigureAwait(false);
+            if (userExist)
+            {
+                return false;
+            }
+
+            (string HashedPassword, string salt) passwordAndSalt = HashingUtil.HashPassword(password);
             string companyName = corporateEmailId.Split('@')[1].ToLower();
             Models.ColleagueCastleModels.User user = new Models.ColleagueCastleModels.User
             {
@@ -34,6 +43,7 @@ namespace NewHorizon.Repositories
                 Salt = passwordAndSalt.salt,
                 HashedPassword = passwordAndSalt.HashedPassword,
                 Company = companyName,
+                CorporateEmailHash = corporateEmailHash
             };
             await this.container.CreateItemAsync(user).ConfigureAwait(false);
             return true;
@@ -55,6 +65,25 @@ namespace NewHorizon.Repositories
                 return user.Resource;
             }
             return null;
+        }
+
+        private async Task<bool> UserExistByCorporateEmailHash(string corporateEmailHash)
+        {
+            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.CorporateEmailHash = @value")
+            .WithParameter("@value", corporateEmailHash);
+
+            // Execute the query and retrieve the results
+            FeedIterator<Models.ColleagueCastleModels.User> queryResultSet = container.GetItemQueryIterator<Models.ColleagueCastleModels.User>(queryDefinition);
+            while (queryResultSet.HasMoreResults)
+            {
+                FeedResponse<Models.ColleagueCastleModels.User> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
+                if (currentResultSet != null && currentResultSet.Count > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
