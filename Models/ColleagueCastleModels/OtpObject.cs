@@ -11,8 +11,6 @@ namespace NewHorizon.Models.ColleagueCastleModels
         [JsonProperty(PropertyName = "uid")]
         public string Uid { get; set; }
 
-        public string EmailAddress;
-
         public int Otp { get; set; }
 
         public DateTime Expiry { get; set; }

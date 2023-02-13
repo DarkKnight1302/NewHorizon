@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace NewHorizon.Models.ColleagueCastleModels
 {
@@ -17,7 +19,6 @@ namespace NewHorizon.Models.ColleagueCastleModels
         [StringLength(100, MinimumLength = 2)]
         public string Name { get; set; }
 
-        [Phone]
         public string PhoneNumber { get; set; }
 
         [Required]

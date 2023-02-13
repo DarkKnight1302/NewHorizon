@@ -32,9 +32,8 @@ namespace NewHorizon.Controllers
             {
                 return Unauthorized();
             }
-
-            // Generate and return a token for the authenticated user
-            return Ok(this.sessionTokenManager.GenerateSessionToken(user.UserName));
+            string sessionToken = await this.sessionTokenManager.GenerateSessionToken(user.UserName).ConfigureAwait(false);
+            return Ok(sessionToken);
         }
     }
 }

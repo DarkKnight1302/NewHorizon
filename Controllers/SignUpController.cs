@@ -33,14 +33,19 @@ namespace NewHorizon.Controllers
                 ModelState.AddModelError("Username", "Username can only contain letters and numbers.");
                 return BadRequest(ModelState);
             }
-            bool validToken = await this.signUpTokenService.VerifySignUpTokenAsync(request.SignUpToken, request.CorporateEmailId);
-            if (!validToken)
+            if (!string.IsNullOrEmpty(request.PhoneNumber) && !Regex.IsMatch(request.PhoneNumber, @"^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"))
             {
-                return BadRequest("Invalid SignUp Token");
+                ModelState.AddModelError("PhoneNumber", "Invalid Phone number");
+                return BadRequest(ModelState);
             }
             if (!SupportedCompanies.IsValidCompany(request.CorporateEmailId))
             {
                 return BadRequest("Invalid Email Address");
+            }
+            bool validToken = await this.signUpTokenService.VerifySignUpTokenAsync(request.SignUpToken, request.CorporateEmailId);
+            if (!validToken)
+            {
+                return BadRequest("Invalid SignUp Token");
             }
             bool success = await this.userRepository.CreateUserIfNotExist(username: request.Username, password: request.Password, name: request.Name, phoneNumber: request.PhoneNumber, email: request.EmailId, corporateEmailId: request.CorporateEmailId);
             if (!success)

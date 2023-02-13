@@ -3,6 +3,7 @@
     using System;
     using Microsoft.AspNetCore.Mvc;
     using NewHorizon.Constants;
+    using NewHorizon.Models.ColleagueCastleModels;
     using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
     namespace OTPExample.Controllers
@@ -12,10 +13,12 @@
         public class OTPController : ControllerBase
         {
             private readonly IOtpService otpService;
+            private readonly ISignUpTokenService signUpTokenService;
 
-            public OTPController(IOtpService otpService)
+            public OTPController(IOtpService otpService, ISignUpTokenService signUpTokenService)
             {
                 this.otpService = otpService;
+                this.signUpTokenService = signUpTokenService;
             }
 
             [HttpPost("generate-and-send")]
@@ -48,7 +51,8 @@
                 bool isOtpValid = await this.otpService.IsOtpValidAsync(emailAddress, otp).ConfigureAwait(false);
                 if (isOtpValid)
                 {
-                    return Ok("OTP validated successfully");
+                    string signUpToken = await this.signUpTokenService.GenerateSignUpTokenAsync(emailAddress).ConfigureAwait(false);
+                    return Ok(new ValidateOtpResponse { Message = "Opt Validated Successfully", SignUpToken = signUpToken});
                 }
                 return Unauthorized("Incorrect Otp");
             }

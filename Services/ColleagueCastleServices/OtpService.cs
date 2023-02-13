@@ -3,15 +3,12 @@ using MimeKit;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
+using MailKit.Net.Smtp;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {
     public class OtpService : IOtpService
     {
-        private readonly SmtpClient smtpClient;
         private readonly Container container;
         private readonly Random random;
         private readonly ISecretService secretService;
@@ -19,12 +16,6 @@ namespace NewHorizon.Services.ColleagueCastleServices
         public OtpService(ICosmosDbService cosmosDbService, ISecretService secretService)
         {
             this.secretService = secretService;
-            string password = secretService.GetSecretValue("COLLEAGUE_CASTLE_EMAIL_PASSWORD");
-            this.smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            this.smtpClient.EnableSsl = true;
-            this.smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-            this.smtpClient.UseDefaultCredentials = false;
-            this.smtpClient.Credentials = new NetworkCredential("admin@colleaguecastle.in", password, "colleaguecastle.in");
             this.container = cosmosDbService.GetContainerFromColleagueCastle("Otp");
             this.random = new Random();
         }
@@ -32,14 +23,26 @@ namespace NewHorizon.Services.ColleagueCastleServices
         public async Task GenerateAndSendOtpAsync(string emailAddress)
         {
             int otp = await this.GenerateOtpAsync(emailAddress).ConfigureAwait(false);
-            MailMessage mail = new MailMessage();
-            mail.To.Add(emailAddress);
-            mail.From = new MailAddress("admin@colleaguecastle.in");
-            mail.Subject = "OTP for Verification by ColleagueCastle.in";
-            mail.Body = "Your OTP for verification is: " + otp;
-            mail.BodyEncoding = Encoding.UTF8;
-            mail.IsBodyHtml = true;
-            this.smtpClient.Send(mail);
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Colleague Castle", "admin@colleaguecastle.in"));
+            message.To.Add(new MailboxAddress("Fellow Colleague", emailAddress));
+            message.Subject = "OTP from ColleagueCastle.in";
+            message.Body = new TextPart("plain")
+            {
+                Text = $"OTP for verification : {otp}"
+            };
+
+            using (SmtpClient smtpClient = new SmtpClient())
+            {
+                smtpClient.Connect("smtp.gmail.com", 465, true);
+
+                //SMTP server authentication if needed
+                smtpClient.Authenticate("admin@colleaguecastle.in", secretService.GetSecretValue("COLLEAGUE_CASTLE_EMAIL_PASSWORD"));
+
+                smtpClient.Send(message);
+
+                smtpClient.Disconnect(true);
+            }
         }
 
         public async Task<bool> IsOtpValidAsync(string emailAddress, int otp)
@@ -47,16 +50,17 @@ namespace NewHorizon.Services.ColleagueCastleServices
             ItemResponse<OtpObject> itemResponse;
             try
             {
-                itemResponse = await this.container.DeleteItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false);
+                itemResponse = await this.container.ReadItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false);
             }
-            catch(CosmosException)
+            catch (CosmosException)
             {
                 itemResponse = null;
             }
             if (itemResponse != null && itemResponse.Resource != null)
             {
-                if (itemResponse.Resource.Otp == otp && itemResponse.Resource.Expiry >= DateTime.UtcNow) 
-                { 
+                if (itemResponse.Resource.Otp == otp && itemResponse.Resource.Expiry >= DateTime.UtcNow)
+                {
+                    _ = Task.Run(async () => await this.container.DeleteItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false));
                     return true;
                 }
             }
