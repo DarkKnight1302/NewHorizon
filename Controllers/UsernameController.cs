@@ -2,35 +2,35 @@
 using Microsoft.AspNetCore.Mvc;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
-using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
 namespace NewHorizon.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BlobStorageController : ControllerBase
+public class UsernameController : ControllerBase
 {
     private readonly ILogger<TrafficDurationController> _logger;
-    private readonly IBlobStorageService blobStorageService;
-    private readonly ISessionTokenManager sessionTokenManager;
+    private readonly IUserRepository userRepository;
 
-    public BlobStorageController(ILogger<TrafficDurationController> logger, IBlobStorageService blobStorageService, ISessionTokenManager sessionTokenManager)
+    public UsernameController(ILogger<TrafficDurationController> logger, IUserRepository userRepository)
     {
         _logger = logger;
-        this.blobStorageService = blobStorageService;
-        this.sessionTokenManager = sessionTokenManager;
+        this.userRepository = userRepository;
     }
 
     [ApiExplorerSettings(GroupName = "v1")]
-    [HttpPost("fetch-blob-sas-token")]
-    public async Task<IActionResult> Get([FromBody] FetchBlobSasTokenRequest fetchBlobSasTokenRequest)
+    [HttpGet("username-availability")]
+    public async Task<IActionResult> Get(string username)
     {
-        bool sessionValid = await this.sessionTokenManager.ValidateSessionToken(fetchBlobSasTokenRequest.UserId, fetchBlobSasTokenRequest.SessionId).ConfigureAwait(false);
-        if (!sessionValid)
+        if (string.IsNullOrEmpty(username))
         {
-            return BadRequest("Invalid Session Token");
+            return BadRequest("Invalid Username");
         }
-        string sasToken = this.blobStorageService.GenerateBlobStorageAccessToken();
-        return Ok(sasToken);
+        User user = await this.userRepository.GetUserByUserNameAsync(username).ConfigureAwait(false);
+        if (user == null)
+        {
+            return Ok(new UsernameAvailabilityResponse(username, true));
+        }
+        return Ok(new UsernameAvailabilityResponse(username, false));
     }
 }

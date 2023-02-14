@@ -2,35 +2,35 @@
 using Microsoft.AspNetCore.Mvc;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
+using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
 namespace NewHorizon.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UsernameController : ControllerBase
+public class BlobStorageController : ControllerBase
 {
     private readonly ILogger<TrafficDurationController> _logger;
-    private readonly IUserRepository userRepository;
+    private readonly IBlobStorageService blobStorageService;
+    private readonly ISessionTokenManager sessionTokenManager;
 
-    public UsernameController(ILogger<TrafficDurationController> logger, IUserRepository userRepository)
+    public BlobStorageController(ILogger<TrafficDurationController> logger, IBlobStorageService blobStorageService, ISessionTokenManager sessionTokenManager)
     {
         _logger = logger;
-        this.userRepository = userRepository;
+        this.blobStorageService = blobStorageService;
+        this.sessionTokenManager = sessionTokenManager;
     }
 
     [ApiExplorerSettings(GroupName = "v1")]
-    [HttpGet("username-availability")]
-    public async Task<IActionResult> Get(string username) 
+    [HttpPost("fetch-blob-sas-token")]
+    public async Task<IActionResult> Get([FromBody] FetchBlobSasTokenRequest fetchBlobSasTokenRequest)
     {
-        if (string.IsNullOrEmpty(username))
+        bool sessionValid = await this.sessionTokenManager.ValidateSessionToken(fetchBlobSasTokenRequest.UserId, fetchBlobSasTokenRequest.SessionId).ConfigureAwait(false);
+        if (!sessionValid)
         {
-            return BadRequest("Invalid Username");
+            return BadRequest("Invalid Session Token");
         }
-        User user = await this.userRepository.GetUserByUserNameAsync(username).ConfigureAwait(false);
-        if (user == null)
-        {
-            return Ok(new UsernameAvailabilityResponse(username, true));
-        }
-        return Ok(new UsernameAvailabilityResponse(username, false));
+        string sasToken = this.blobStorageService.GenerateBlobStorageAccessToken();
+        return Ok(sasToken);
     }
 }
