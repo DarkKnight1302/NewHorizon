@@ -4,10 +4,10 @@ using Microsoft.OpenApi.Models;
 using NewHorizon.CronJob;
 using NewHorizon.Handlers;
 using NewHorizon.Repositories;
+using NewHorizon.Repositories.ColleagueCastleServices;
+using NewHorizon.Repositories.ColleagueCastleServices.Interfaces;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services;
-using NewHorizon.Services.ColleagueCastleServices;
-using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
 using SkipTrafficLib.Services;
 using SkipTrafficLib.Services.Interfaces;
@@ -41,14 +41,7 @@ builder.Services.AddSingleton<IPropertyPostRepository, PropertyPostRepository>()
 builder.Services.AddSingleton<IPropertyPostService, PropertyPostService>();
 builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
 builder.Services.AddMemoryCache();
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.WithOrigins("https://colleaguecastle.in", "https://localhost:7280/").AllowAnyHeader().AllowAnyMethod();
-        });
-});
+builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 var app = builder.Build();
 app.Services.GetService<IDataAccumulationJob>()?.Init();
@@ -63,9 +56,14 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-app.UseCors();
+    app.UseCors(builder =>
+{
+    builder.WithOrigins("https://www.colleaguecastle.in", "https://localhost:7280")
+           .AllowAnyMethod()
+           .AllowAnyHeader()
+           .AllowCredentials();
+});
 
 app.MapControllers();
 
-app.Run();
+app.Run(); 
