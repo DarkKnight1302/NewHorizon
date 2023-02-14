@@ -11,6 +11,7 @@ using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
 using SkipTrafficLib.Services;
 using SkipTrafficLib.Services.Interfaces;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +40,15 @@ builder.Services.AddSingleton<ISignUpTokenService, SignUpTokenService>();
 builder.Services.AddSingleton<IPropertyPostRepository, PropertyPostRepository>();
 builder.Services.AddSingleton<IPropertyPostService, PropertyPostService>();
 builder.Services.AddMemoryCache();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("https://colleaguecastle.in", "https://localhost:7280/");
+        });
+});
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
-
 var app = builder.Build();
 app.Services.GetService<IDataAccumulationJob>()?.Init();
 
@@ -54,6 +62,8 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors();
 
 app.MapControllers();
 

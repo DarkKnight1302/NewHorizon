@@ -2,6 +2,6 @@
 {
     public interface IBlobStorageService
     {
-        public Task<string> GenerateBlobStorageKey();
+        public string GenerateBlobStorageAccessToken();
     }
 }

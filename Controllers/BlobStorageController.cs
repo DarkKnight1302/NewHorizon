@@ -2,29 +2,27 @@
 using Microsoft.AspNetCore.Mvc;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
-using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
 namespace NewHorizon.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BlobStorageController : ControllerBase
+public class UsernameController : ControllerBase
 {
     private readonly ILogger<TrafficDurationController> _logger;
-    private readonly IBlobStorageService blobStorageService;
+    private readonly IUserRepository userRepository;
 
-    public BlobStorageController(ILogger<TrafficDurationController> logger, IBlobStorageService blobStorageService)
+    public UsernameController(ILogger<TrafficDurationController> logger, IUserRepository userRepository)
     {
         _logger = logger;
-        this.blobStorageService = blobStorageService;
+        this.userRepository = userRepository;
     }
 
     [ApiExplorerSettings(GroupName = "v1")]
-    [HttpPost("fetch-blob-sas-token")]
+    [HttpGet("username-availability")]
     public async Task<IActionResult> Get(string username) 
     {
-        return Ok();
-        /*if (string.IsNullOrEmpty(username))
+        if (string.IsNullOrEmpty(username))
         {
             return BadRequest("Invalid Username");
         }
@@ -33,6 +31,6 @@ public class BlobStorageController : ControllerBase
         {
             return Ok(new UsernameAvailabilityResponse(username, true));
         }
-        return Ok(new UsernameAvailabilityResponse(username, false));*/
+        return Ok(new UsernameAvailabilityResponse(username, false));
     }
 }
