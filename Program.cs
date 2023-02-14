@@ -39,6 +39,7 @@ builder.Services.AddSingleton<IOtpService, OtpService>();
 builder.Services.AddSingleton<ISignUpTokenService, SignUpTokenService>();
 builder.Services.AddSingleton<IPropertyPostRepository, PropertyPostRepository>();
 builder.Services.AddSingleton<IPropertyPostService, PropertyPostService>();
+builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddCors(options =>
 {
