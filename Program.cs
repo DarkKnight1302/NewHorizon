@@ -25,6 +25,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Colleague Castle APIs", Version = "v1" });
     c.SwaggerDoc("v2", new OpenApiInfo { Title = "My API - V2", Version = "v2" });
 });
+builder.Services.AddSwaggerGenNewtonsoftSupport();
 builder.Services.AddSingleton<ITrafficDataService, TrafficDataService>();
 builder.Services.AddSingleton<ITrafficDataStorageService, TrafficDataStorageService>();
 builder.Services.AddSingleton<IRouteRegistrationService, RouteRegistrationService>();

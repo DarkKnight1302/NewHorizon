@@ -20,6 +20,10 @@ namespace NewHorizon.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePropertyPost([FromBody] CreatePropertyPostRequest createPropertyPostRequest)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             string postId = await this.propertyPostService.CreatePropertyPostAsync(createPropertyPostRequest.SessionId, createPropertyPostRequest.PlaceId, createPropertyPostRequest.Title, createPropertyPostRequest.Description, createPropertyPostRequest.Images);
             if (string.IsNullOrEmpty(postId))
             {
