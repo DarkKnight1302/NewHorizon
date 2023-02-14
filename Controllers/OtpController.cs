@@ -23,9 +23,10 @@
 
             [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("generate-and-send")]
-            public async Task<IActionResult> GenerateAndSendOTP(string emailAddress)
+            public async Task<IActionResult> GenerateAndSendOTP([FromBody] GenerateOtpRequest generateOtpRequest)
             {
-                if (!SupportedCompanies.IsValidCompany(emailAddress))
+                string emailAddress = generateOtpRequest.EmailId;
+                if (!SupportedCompanies.IsValidCompany(generateOtpRequest.EmailId))
                 {
                     return BadRequest("Invalid email address");
                 }
@@ -43,8 +44,10 @@
 
             [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("validate")]
-            public async Task<IActionResult> ValidateOTP(string emailAddress, int otp)
+            public async Task<IActionResult> ValidateOTP([FromBody] ValidateOtpRequest validateOtpRequest)
             {
+                string emailAddress = validateOtpRequest.EmailId;
+                int otp = validateOtpRequest.Otp;
                 if (string.IsNullOrEmpty(emailAddress) || !SupportedCompanies.IsValidCompany(emailAddress))
                 {
                     return BadRequest("Invalid email Address");

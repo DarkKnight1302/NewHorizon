@@ -15,6 +15,10 @@ namespace NewHorizon.Models.ColleagueCastleModels
 
         public string Description { get; set; }
 
+        public string MapUrl { get; set; }
+
+        public string FormattedAddress { get; set; }
+
         public List<string> Images { get; set; }
 
         public string CreatorUserName { get; set; }

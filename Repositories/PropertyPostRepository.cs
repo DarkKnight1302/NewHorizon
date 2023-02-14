@@ -1,35 +1,53 @@
-﻿using Azure.Core;
-using GoogleApi.Entities.Places.Details.Response;
+﻿using Microsoft.Azure.Cosmos;
+using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
-using NewHorizon.Services.ColleagueCastleServices.Interfaces;
-using SkipTrafficLib.Services.Interfaces;
+using NewHorizon.Services.Interfaces;
 
 namespace NewHorizon.Repositories
 {
     public class PropertyPostRepository : IPropertyPostRepository
     {
-        private readonly IGooglePlaceService GooglePlaceService;
-        private readonly ISessionTokenManager sessionTokenManager;
+        private readonly Container container;
+        private readonly Container PropertyDetailsContainer;
 
-        public PropertyPostRepository(IGooglePlaceService googlePlaceService, ISessionTokenManager sessionTokenManager) 
+        public PropertyPostRepository(ICosmosDbService cosmosDbService)
         {
-            this.GooglePlaceService = googlePlaceService;
-            this.sessionTokenManager = sessionTokenManager;
+            this.container = cosmosDbService.GetContainerFromColleagueCastle("PropertyPost");
+            this.PropertyDetailsContainer = cosmosDbService.GetContainerFromColleagueCastle("PropertyPostDetails");
         }
 
-        public async Task<bool> CreatePropertyPostAsync(string sessionId, string placeId, string title, string description, List<string> images)
+        public async Task<string> CreatePropertyPostAsync(CreatePropertyObject createPropertyObject)
         {
-            DetailsResult details = await this.GooglePlaceService.GetPlaceDetailsAsync(placeId).ConfigureAwait(false);
-            if (details == null)
+            string uniqueId = this.GetUniqueIdForPost(createPropertyObject.username, createPropertyObject.placeId);
+            var propertyPost = new PropertyPost
             {
-                return false;
-            }
-            string userName = await this.sessionTokenManager.GetUserNameFromToken(sessionId);
-            if (userName == null)
+                Id = uniqueId,
+                Uid = uniqueId,
+                PlaceId = createPropertyObject.placeId,
+                Location = createPropertyObject.location,
+                Available = true,
+                City = createPropertyObject.city,
+                Company = createPropertyObject.company,
+            };
+            await this.container.UpsertItemAsync(propertyPost).ConfigureAwait(false);
+            var propertyPostDetails = new PropertyPostDetails
             {
-                return false;
-            }
-            return true;
+                Id = uniqueId,
+                Uid = uniqueId,
+                CreatorUserName = createPropertyObject.username,
+                Title = createPropertyObject.title,
+                Description = createPropertyObject.description,
+                FormattedAddress = createPropertyObject.FormattedAddress,
+                Images = createPropertyObject.Images,
+                MapUrl = createPropertyObject.MapUrl,
+            };
+            await this.PropertyDetailsContainer.UpsertItemAsync(propertyPostDetails).ConfigureAwait(false);
+            return uniqueId;
+        }
+
+        private string GetUniqueIdForPost(string username, string placeId)
+        {
+            return username + "_" + placeId;
         }
     }
 }
