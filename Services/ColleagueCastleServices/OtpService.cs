@@ -1,9 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
 using MimeKit;
 using NewHorizon.Models.ColleagueCastleModels;
-using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
 using MailKit.Net.Smtp;
+using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {
@@ -16,13 +16,13 @@ namespace NewHorizon.Services.ColleagueCastleServices
         public OtpService(ICosmosDbService cosmosDbService, ISecretService secretService)
         {
             this.secretService = secretService;
-            this.container = cosmosDbService.GetContainerFromColleagueCastle("Otp");
-            this.random = new Random();
+            container = cosmosDbService.GetContainerFromColleagueCastle("Otp");
+            random = new Random();
         }
 
         public async Task GenerateAndSendOtpAsync(string emailAddress)
         {
-            int otp = await this.GenerateOtpAsync(emailAddress).ConfigureAwait(false);
+            int otp = await GenerateOtpAsync(emailAddress).ConfigureAwait(false);
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Colleague Castle", "admin@colleaguecastle.in"));
             message.To.Add(new MailboxAddress("Fellow Colleague", emailAddress));
@@ -50,7 +50,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
             ItemResponse<OtpObject> itemResponse;
             try
             {
-                itemResponse = await this.container.ReadItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false);
+                itemResponse = await container.ReadItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false);
             }
             catch (CosmosException)
             {
@@ -60,7 +60,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 if (itemResponse.Resource.Otp == otp && itemResponse.Resource.Expiry >= DateTime.UtcNow)
                 {
-                    _ = Task.Run(async () => await this.container.DeleteItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false));
+                    _ = Task.Run(async () => await container.DeleteItemAsync<OtpObject>(emailAddress.ToLower(), new PartitionKey(emailAddress.ToLower())).ConfigureAwait(false));
                     return true;
                 }
             }
@@ -74,10 +74,10 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 Id = emailAddress.ToLower(),
                 Uid = emailAddress.ToLower(),
-                Otp = this.random.Next(1000, 9999),
+                Otp = random.Next(1000, 9999),
                 Expiry = DateTime.UtcNow.AddMinutes(5),
             };
-            ItemResponse<OtpObject> itemResponse = await this.container.UpsertItemAsync(otpObject);
+            ItemResponse<OtpObject> itemResponse = await container.UpsertItemAsync(otpObject);
             return itemResponse.Resource.Otp;
         }
     }

@@ -12,7 +12,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
 
         public SignUpTokenService(ICosmosDbService cosmosDbService)
         {
-            this.container = cosmosDbService.GetContainerFromColleagueCastle("SignUpToken");
+            container = cosmosDbService.GetContainerFromColleagueCastle("SignUpToken");
         }
 
         public async Task<string> GenerateSignUpTokenAsync(string emailAddress)
@@ -27,7 +27,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 Expiry = DateTime.UtcNow.AddMinutes(5),
             };
 
-            ItemResponse<SignUpToken> response = await this.container.UpsertItemAsync(signUpToken).ConfigureAwait(false);
+            ItemResponse<SignUpToken> response = await container.UpsertItemAsync(signUpToken).ConfigureAwait(false);
             return response.Resource.Token;
         }
 
@@ -36,7 +36,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
             ItemResponse<SignUpToken> itemResponse;
             try
             {
-                itemResponse = await this.container.ReadItemAsync<SignUpToken>(token, new PartitionKey(token)).ConfigureAwait(false);
+                itemResponse = await container.ReadItemAsync<SignUpToken>(token, new PartitionKey(token)).ConfigureAwait(false);
             }
             catch (CosmosException)
             {
@@ -46,7 +46,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 if (itemResponse.Resource.EmailAddress == emailAddress.ToLower() && itemResponse.Resource.Expiry >= DateTime.UtcNow)
                 {
-                    _ = Task.Run(async () => await this.container.DeleteItemAsync<SignUpToken>(token, new PartitionKey(token)).ConfigureAwait(false));
+                    _ = Task.Run(async () => await container.DeleteItemAsync<SignUpToken>(token, new PartitionKey(token)).ConfigureAwait(false));
                     return true;
                 }
             }

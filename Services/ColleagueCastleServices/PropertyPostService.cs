@@ -28,17 +28,17 @@ namespace NewHorizon.Services.ColleagueCastleServices
 
         public async Task<string> CreatePropertyPostAsync(string sessionId, string placeId, string title, string description, List<string> images)
         {
-            DetailsResult details = await this.googlePlaceService.GetPlaceDetailsAsync(placeId).ConfigureAwait(false);
+            DetailsResult details = await googlePlaceService.GetPlaceDetailsAsync(placeId).ConfigureAwait(false);
             if (details == null)
             {
                 return null;
             }
-            string userName = await this.sessionTokenManager.GetUserNameFromToken(sessionId);
+            string userName = await sessionTokenManager.GetUserNameFromToken(sessionId);
             if (userName == null)
             {
                 return null;
             }
-            User user = await this.userRepository.GetUserByUserNameAsync(userName).ConfigureAwait(false);
+            User user = await userRepository.GetUserByUserNameAsync(userName).ConfigureAwait(false);
             if (user == null)
             {
                 return null;
@@ -75,7 +75,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 location = location,
                 MapUrl = details.Url,
             };
-            string propertyPostId =  await this.propertyPostRepository.CreatePropertyPostAsync(createPropertyPost).ConfigureAwait(false);
+            string propertyPostId = await propertyPostRepository.CreatePropertyPostAsync(createPropertyPost).ConfigureAwait(false);
             return propertyPostId;
         }
 

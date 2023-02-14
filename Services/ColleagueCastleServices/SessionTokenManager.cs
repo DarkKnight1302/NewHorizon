@@ -13,13 +13,13 @@ namespace NewHorizon.Services.ColleagueCastleServices
 
         public SessionTokenManager(ICosmosDbService cosmosDbService)
         {
-            this._container = cosmosDbService.GetContainerFromColleagueCastle("UserSessionToken");
+            _container = cosmosDbService.GetContainerFromColleagueCastle("UserSessionToken");
         }
 
         public async Task<string> GenerateSessionToken(string userId)
         {
-            string existingToken = await this.GetTokenIfAlreadySignedIn(userId).ConfigureAwait(false);
-            if (existingToken != null )
+            string existingToken = await GetTokenIfAlreadySignedIn(userId).ConfigureAwait(false);
+            if (existingToken != null)
             {
                 return existingToken;
             }
