@@ -12,6 +12,9 @@ using NewHorizon.Services.Interfaces;
 using SkipTrafficLib.Services;
 using SkipTrafficLib.Services.Interfaces;
 using Newtonsoft.Json.Converters;
+using Microsoft.Extensions.Caching.Memory;
+using NewHorizon.Middleware;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Colleague Castle APIs", Version = "v1" });
     c.SwaggerDoc("v2", new OpenApiInfo { Title = "My API - V2", Version = "v2" });
+    c.OperationFilter<AddApiKeyHeaderParameter>();
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
 builder.Services.AddSingleton<ITrafficDataService, TrafficDataService>();
@@ -57,6 +61,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
 });
 
+app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()),  5,  TimeSpan.FromMinutes(5));
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

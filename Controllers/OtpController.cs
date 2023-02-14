@@ -21,11 +21,17 @@
                 this.signUpTokenService = signUpTokenService;
             }
 
+            [ApiKeyRequired]
             [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("generate-and-send")]
             public async Task<IActionResult> GenerateAndSendOTP([FromBody] GenerateOtpRequest generateOtpRequest)
             {
                 string emailAddress = generateOtpRequest.EmailId;
+                var apiKey = HttpContext.Request.Headers["X-Api-Key"];
+                if (apiKey != emailAddress)
+                {
+                    return BadRequest("Invalid Header value");
+                }
                 if (!SupportedCompanies.IsValidCompany(generateOtpRequest.EmailId))
                 {
                     return BadRequest("Invalid email address");
