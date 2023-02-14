@@ -12,27 +12,25 @@ public class BlobStorageController : ControllerBase
 {
     private readonly ILogger<TrafficDurationController> _logger;
     private readonly IBlobStorageService blobStorageService;
+    private readonly ISessionTokenManager sessionTokenManager;
 
-    public BlobStorageController(ILogger<TrafficDurationController> logger, IBlobStorageService blobStorageService)
+    public BlobStorageController(ILogger<TrafficDurationController> logger, IBlobStorageService blobStorageService, ISessionTokenManager sessionTokenManager)
     {
         _logger = logger;
         this.blobStorageService = blobStorageService;
+        this.sessionTokenManager = sessionTokenManager;
     }
 
     [ApiExplorerSettings(GroupName = "v1")]
     [HttpPost("fetch-blob-sas-token")]
-    public async Task<IActionResult> Get(string username) 
+    public async Task<IActionResult> Get([FromBody] FetchBlobSasTokenRequest fetchBlobSasTokenRequest)
     {
-        return Ok();
-        /*if (string.IsNullOrEmpty(username))
+        bool sessionValid = await this.sessionTokenManager.ValidateSessionToken(fetchBlobSasTokenRequest.UserId, fetchBlobSasTokenRequest.SessionId).ConfigureAwait(false);
+        if (!sessionValid)
         {
-            return BadRequest("Invalid Username");
+            return BadRequest("Invalid Session Token");
         }
-        User user = await this.userRepository.GetUserByUserNameAsync(username).ConfigureAwait(false);
-        if (user == null)
-        {
-            return Ok(new UsernameAvailabilityResponse(username, true));
-        }
-        return Ok(new UsernameAvailabilityResponse(username, false));*/
+        string sasToken = this.blobStorageService.GenerateBlobStorageAccessToken();
+        return Ok(sasToken);
     }
 }

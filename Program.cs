@@ -45,7 +45,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("https://colleaguecastle.in", "https://localhost:7280/");
+            policy.WithOrigins("https://colleaguecastle.in", "https://localhost:7280/").AllowAnyHeader().AllowAnyMethod();
         });
 });
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
