@@ -11,13 +11,16 @@ using NewHorizon.Services;
 using NewHorizon.Services.Interfaces;
 using SkipTrafficLib.Services;
 using SkipTrafficLib.Services.Interfaces;
-using static Org.BouncyCastle.Math.EC.ECCurve;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.Converters.Add(new StringEnumConverter());
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

@@ -23,6 +23,24 @@ namespace NewHorizon.Models.ColleagueCastleModels
 
         public string CreatorUserName { get; set; }
 
+        public int RentAmount { get; set; }
+
+        public PropertyType PropertyType { get; set; }
+
+        public FlatType FlatType { get; set; }
+
+        public FurnishingType FurnishingType { get; set; }
+
+        public TenantPreference TenantPreference { get; set; }
+
+        public FoodPreference FoodPreference { get; set; }
+
+        public Smoking Smoking { get; set; }
+
+        public Drinking Drinking { get; set; }
+
+        public ExperienceRange ExperienceRange { get; set; }
+
         public long Views { get; set; }
 
         public List<string> InterestIds { get; set; }

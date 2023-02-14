@@ -26,14 +26,14 @@ namespace NewHorizon.Services.ColleagueCastleServices
             this.propertyPostRepository = propertyPostRepository;
         }
 
-        public async Task<string> CreatePropertyPostAsync(string sessionId, string placeId, string title, string description, List<string> images)
+        public async Task<string> CreatePropertyPostAsync(CreatePropertyPostRequest createPropertyPostRequest)
         {
-            DetailsResult details = await googlePlaceService.GetPlaceDetailsAsync(placeId).ConfigureAwait(false);
+            DetailsResult details = await googlePlaceService.GetPlaceDetailsAsync(createPropertyPostRequest.PlaceId).ConfigureAwait(false);
             if (details == null)
             {
                 return null;
             }
-            string userName = await sessionTokenManager.GetUserNameFromToken(sessionId);
+            string userName = await sessionTokenManager.GetUserNameFromToken(createPropertyPostRequest.SessionId);
             if (userName == null)
             {
                 return null;
@@ -67,13 +67,22 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 username = userName,
                 city = cityName,
                 company = user.Company,
-                placeId = placeId,
-                title = title,
-                description = description,
-                Images = images,
+                placeId = createPropertyPostRequest.PlaceId,
+                title = createPropertyPostRequest.Title,
+                description = createPropertyPostRequest.Description,
+                Images = createPropertyPostRequest.Images,
                 FormattedAddress = details.FormattedAddress,
                 location = location,
                 MapUrl = details.Url,
+                RentAmount = createPropertyPostRequest.RentAmount,
+                PropertyType = createPropertyPostRequest.PropertyType,
+                TenantPreference = createPropertyPostRequest.TenantPreference,
+                FoodPreference = createPropertyPostRequest.FoodPreference,
+                FurnishingType = createPropertyPostRequest.FurnishingType,
+                FlatType = createPropertyPostRequest.FlatType,
+                Drinking = createPropertyPostRequest.Drinking,
+                Smoking = createPropertyPostRequest.Smoking,
+                ExperienceRange = createPropertyPostRequest.ExperienceRange,
             };
             string propertyPostId = await propertyPostRepository.CreatePropertyPostAsync(createPropertyPost).ConfigureAwait(false);
             return propertyPostId;

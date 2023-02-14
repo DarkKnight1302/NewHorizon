@@ -40,6 +40,15 @@ namespace NewHorizon.Repositories
                 FormattedAddress = createPropertyObject.FormattedAddress,
                 Images = createPropertyObject.Images,
                 MapUrl = createPropertyObject.MapUrl,
+                RentAmount = createPropertyObject.RentAmount,
+                TenantPreference = createPropertyObject.TenantPreference,
+                FoodPreference = createPropertyObject.FoodPreference,
+                ExperienceRange = createPropertyObject.ExperienceRange,
+                PropertyType = createPropertyObject.PropertyType,
+                FurnishingType = createPropertyObject.FurnishingType,
+                FlatType = createPropertyObject.FlatType,
+                Drinking = createPropertyObject.Drinking,
+                Smoking = createPropertyObject.Smoking,
             };
             await this.PropertyDetailsContainer.UpsertItemAsync(propertyPostDetails).ConfigureAwait(false);
             return uniqueId;

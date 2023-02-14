@@ -23,25 +23,35 @@ namespace NewHorizon.Models.ColleagueCastleModels
         [StringLength(5000, MinimumLength = 1)]
         public string Description { get; set; }
 
-        public List<string> Images { get; set; }
+        public List<string> Images { get; set; } = new List<string>();
 
+        [Required]
         public int RentAmount { get; set; }
 
+        [Required]
+        [JsonProperty("propertyType")]
         public PropertyType PropertyType { get; set; }
 
+        [Required]
+        [JsonProperty("FlatType")]
         public FlatType FlatType { get; set; }
 
+        [Required]
         public FurnishingType FurnishingType { get; set; }
 
+        [Required]
         public TenantPreference TenantPreference { get; set; }
 
+        [Required]
         public FoodPreference FoodPreference { get; set; }
 
+        [Required]
         public Smoking Smoking { get; set; }
 
+        [Required]
         public Drinking Drinking { get; set; }
 
-        public ExperienceRange ExperienceRange { get; set; }
+        public ExperienceRange ExperienceRange { get; set; } = new ExperienceRange();
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -54,10 +64,10 @@ namespace NewHorizon.Models.ColleagueCastleModels
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FlatType
     {
-        BHK1 = 0,
-        BHK2 = 1,
-        BHK3 = 2,
-        OTHER = 3,
+        BHK1,
+        BHK2,
+        BHK3,
+        OTHER,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -99,11 +109,10 @@ namespace NewHorizon.Models.ColleagueCastleModels
         NotAllowed = 1,
     }
 
-    [JsonConverter(typeof(StringEnumConverter))]
     public class ExperienceRange
     {
-        public int MinExpYears { get; set; }
-        public int MaxExpYears { get; set; }
+        public int MinExpYears { get; set; } = 0;
+        public int MaxExpYears { get; set; } = 50;
     }
 
 }

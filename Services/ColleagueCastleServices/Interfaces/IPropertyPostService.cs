@@ -4,7 +4,7 @@ namespace NewHorizon.Services.ColleagueCastleServices.Interfaces
 {
     public interface IPropertyPostService
     {
-        public Task<string> CreatePropertyPostAsync(string sessionId, string placeId, string title, string description, List<string> images);
+        public Task<string> CreatePropertyPostAsync(CreatePropertyPostRequest createPropertyPostRequest);
 
         public Task<bool> UpdatePropertyPostAsync(PropertyPost propertyPost);
 

@@ -24,7 +24,7 @@ namespace NewHorizon.Controllers
             {
                 return BadRequest(ModelState);
             }
-            string postId = await this.propertyPostService.CreatePropertyPostAsync(createPropertyPostRequest.SessionId, createPropertyPostRequest.PlaceId, createPropertyPostRequest.Title, createPropertyPostRequest.Description, createPropertyPostRequest.Images);
+            string postId = await this.propertyPostService.CreatePropertyPostAsync(createPropertyPostRequest);
             if (string.IsNullOrEmpty(postId))
             {
                 return Problem("Not able to create post");
