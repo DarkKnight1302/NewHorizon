@@ -61,17 +61,17 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
 });
 
-//app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()),  5,  TimeSpan.FromMinutes(5));
+app.UseCors(builder =>
+{
+    builder.WithOrigins("https://www.colleaguecastle.in", "https://localhost:7280")
+           .AllowAnyMethod()
+           .AllowAnyHeader()
+           .AllowCredentials();
+});
+app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()),  5,  TimeSpan.FromMinutes(5));
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseCors(builder =>
-{
-builder.WithOrigins("https://www.colleaguecastle.in", "https://localhost:7280")
-       .AllowAnyMethod()
-       .AllowAnyHeader()
-       .AllowCredentials();
-});
 
 app.MapControllers();
 
