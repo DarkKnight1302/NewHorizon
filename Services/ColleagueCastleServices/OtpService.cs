@@ -7,7 +7,7 @@ using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {
-    public class OtpService : IOtpService
+    public class OtpService : IOtpService, IClearExpiredData
     {
         private readonly Container container;
         private readonly Random random;
@@ -80,5 +80,34 @@ namespace NewHorizon.Services.ColleagueCastleServices
             ItemResponse<OtpObject> itemResponse = await container.UpsertItemAsync(otpObject);
             return itemResponse.Resource.Otp;
         }
+
+        public async Task ClearData()
+        {
+            List<string> itemsToDelete = new List<string>();
+            var feedIterator = this.container.GetItemQueryIterator<OtpObject>();
+            while(feedIterator.HasMoreResults)
+            {
+                FeedResponse<OtpObject> response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                if (response != null && response.Resource.Any())
+                {
+                    foreach(var otpObject in response.Resource)
+                    {
+                        if (otpObject.Expiry < DateTime.UtcNow)
+                        {
+                            itemsToDelete.Add(otpObject.Id);
+                        }
+                    }
+                }
+            }
+
+            if (itemsToDelete.Count > 0)
+            {
+                foreach(var id in itemsToDelete)
+                {
+                    await this.container.DeleteItemAsync<OtpObject>(id, new PartitionKey(id)).ConfigureAwait(false);
+                }
+            }
+        }
+
     }
 }

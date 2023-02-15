@@ -44,6 +44,7 @@ builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<ISessionTokenManager, SessionTokenManager>();
 builder.Services.AddSingleton<IOtpService, OtpService>();
+builder.Services.AddSingleton<IClearExpiredData, OtpService>();
 builder.Services.AddSingleton<ISignUpTokenService, SignUpTokenService>();
 builder.Services.AddSingleton<IPropertyPostRepository, PropertyPostRepository>();
 builder.Services.AddSingleton<IPropertyPostService, PropertyPostService>();
@@ -61,13 +62,13 @@ builder.Services.AddSingleton<ICriteriaMatching, TenantPreferenceCriteriaMatchin
 builder.Services.AddSingleton<ICriteriaMatching, UsernameCriteriaMatching>();
 builder.Services.AddSingleton<IPropertyMatchingService, PropertyMatchingService>();
 builder.Services.AddSingleton<ISearchPropertyService, SearchPropertyService>();
+builder.Services.AddSingleton<IExpiredDataClearingJob, ExpiredDataClearingJob>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 var app = builder.Build();
-app.Services.GetService<IDataAccumulationJob>()?.Init();
-
+app.Services.GetService<IExpiredDataClearingJob>()?.Init();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
