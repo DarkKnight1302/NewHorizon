@@ -15,8 +15,6 @@ namespace NewHorizon.Models.ColleagueCastleModels
 
         public string PlaceId { get; set; }
 
-        public Location Location { get; set; }
-
         public string City { get; set; }
 
         public string Company { get; set; }

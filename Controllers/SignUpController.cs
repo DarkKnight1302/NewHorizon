@@ -29,6 +29,7 @@ namespace NewHorizon.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             if (!Regex.IsMatch(request.Username, @"^[a-zA-Z0-9]+$"))
             {
                 ModelState.AddModelError("Username", "Username can only contain letters and numbers.");

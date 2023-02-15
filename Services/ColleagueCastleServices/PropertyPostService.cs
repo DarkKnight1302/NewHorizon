@@ -3,6 +3,7 @@ using GoogleApi.Entities.Places.Details.Response;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
+using NewHorizon.Utils;
 using SkipTrafficLib.Services.Interfaces;
 
 namespace NewHorizon.Services.ColleagueCastleServices
@@ -28,8 +29,8 @@ namespace NewHorizon.Services.ColleagueCastleServices
 
         public async Task<string> CreatePropertyPostAsync(CreatePropertyPostRequest createPropertyPostRequest)
         {
-            DetailsResult details = await googlePlaceService.GetPlaceDetailsAsync(createPropertyPostRequest.PlaceId).ConfigureAwait(false);
-            if (details == null)
+            DetailsResult placeDetails = await googlePlaceService.GetPlaceDetailsAsync(createPropertyPostRequest.PlaceId).ConfigureAwait(false);
+            if (placeDetails == null)
             {
                 return null;
             }
@@ -44,24 +45,13 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 return null;
             }
 
-            string cityName = null;
+            string cityName = CityNameUtil.GetCityNameFromPlaceDetails(placeDetails);
 
-            foreach (var addressComponent in details.AddressComponents)
-            {
-                foreach (var componentType in addressComponent.Types)
-                {
-                    if (AddressComponentType.Locality == componentType)
-                    {
-                        cityName = addressComponent.LongName;
-                        break;
-                    }
-                }
-            }
             if (string.IsNullOrEmpty(cityName))
             {
                 return null;
             }
-            Location location = new Location(details.Geometry.Location.Latitude, details.Geometry.Location.Longitude);
+            Location location = new Location(placeDetails.Geometry.Location.Latitude, placeDetails.Geometry.Location.Longitude);
             var createPropertyPost = new CreatePropertyObject
             {
                 username = userName,
@@ -71,9 +61,9 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 title = createPropertyPostRequest.Title,
                 description = createPropertyPostRequest.Description,
                 Images = createPropertyPostRequest.Images,
-                FormattedAddress = details.FormattedAddress,
+                FormattedAddress = placeDetails.FormattedAddress,
                 location = location,
-                MapUrl = details.Url,
+                MapUrl = placeDetails.Url,
                 RentAmount = createPropertyPostRequest.RentAmount,
                 PropertyType = createPropertyPostRequest.PropertyType,
                 TenantPreference = createPropertyPostRequest.TenantPreference,

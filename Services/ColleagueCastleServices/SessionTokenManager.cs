@@ -24,7 +24,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 return existingToken;
             }
             string sessionToken = Guid.NewGuid().ToString();
-            DateTime expiry = DateTime.UtcNow.AddHours(1);
+            DateTime expiry = DateTime.UtcNow.AddMinutes(30);
 
             var session = new UserSessionToken
             {

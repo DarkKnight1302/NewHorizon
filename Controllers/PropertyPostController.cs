@@ -24,6 +24,18 @@ namespace NewHorizon.Controllers
             {
                 return BadRequest(ModelState);
             }
+
+            if (createPropertyPostRequest.TenantPreference == TenantPreference.Ignore
+                || createPropertyPostRequest.FoodPreference == FoodPreference.Ignore
+                || createPropertyPostRequest.Drinking == Drinking.Ignore
+                || createPropertyPostRequest.PropertyType == PropertyType.Ignore
+                || createPropertyPostRequest.FurnishingType == FurnishingType.Ignore
+                || createPropertyPostRequest.FlatType == FlatType.Ignore
+                || createPropertyPostRequest.Smoking == Smoking.Ignore) 
+            {
+                return BadRequest("Cannot ignore required properties");
+            }
+
             string postId = await this.propertyPostService.CreatePropertyPostAsync(createPropertyPostRequest);
             if (string.IsNullOrEmpty(postId))
             {

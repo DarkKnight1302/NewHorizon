@@ -24,7 +24,6 @@ namespace NewHorizon.Repositories
                 Id = uniqueId,
                 Uid = uniqueId,
                 PlaceId = createPropertyObject.placeId,
-                Location = createPropertyObject.location,
                 Available = true,
                 City = createPropertyObject.city,
                 Company = createPropertyObject.company,
@@ -39,6 +38,7 @@ namespace NewHorizon.Repositories
                 Description = createPropertyObject.description,
                 FormattedAddress = createPropertyObject.FormattedAddress,
                 Images = createPropertyObject.Images,
+                Location = createPropertyObject.location,
                 MapUrl = createPropertyObject.MapUrl,
                 RentAmount = createPropertyObject.RentAmount,
                 TenantPreference = createPropertyObject.TenantPreference,
@@ -52,6 +52,37 @@ namespace NewHorizon.Repositories
             };
             await this.PropertyDetailsContainer.UpsertItemAsync(propertyPostDetails).ConfigureAwait(false);
             return uniqueId;
+        }
+
+        public async Task<IEnumerable<PropertyPostDetails>> GetAllPropertyPostDetailsAsync(string city, string company)
+        {
+            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.City = @value1 and c.Company = @value2")
+            .WithParameter("@value1", city).WithParameter("@value2", company);
+
+            List<(string, PartitionKey)> propertyPostIds = new List<(string, PartitionKey)>();
+
+            // Execute the query and retrieve the results
+            FeedIterator<PropertyPost> queryResultSet = container.GetItemQueryIterator<PropertyPost>(queryDefinition);
+            while (queryResultSet.HasMoreResults)
+            {
+                FeedResponse<PropertyPost> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
+                if (currentResultSet != null && currentResultSet.Count > 0)
+                {
+                    foreach(var post in currentResultSet.Resource)
+                    {
+                        propertyPostIds.Add((post.Id, new PartitionKey(post.Id)));
+                    }
+                }
+            }
+            if (propertyPostIds.Count > 0)
+            {
+                FeedResponse<PropertyPostDetails> propertyPostResponse = await this.PropertyDetailsContainer.ReadManyItemsAsync<PropertyPostDetails>(propertyPostIds).ConfigureAwait(false);
+                if (propertyPostResponse != null && propertyPostResponse.Resource.Any())
+                {
+                    return propertyPostResponse.Resource;
+                }
+            }
+           return Enumerable.Empty<PropertyPostDetails>();
         }
 
         private string GetUniqueIdForPost(string username, string placeId)
