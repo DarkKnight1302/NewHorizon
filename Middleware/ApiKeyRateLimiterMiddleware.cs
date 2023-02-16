@@ -13,7 +13,8 @@ namespace NewHorizon.Middleware
         private readonly List<string> RateLimitedApis = new List<string>()
         {
             "/api/PlaceSuggestion",
-            "/api/OTP/generate-and-send"
+            "/api/OTP/generate-and-send",
+            "/api/Blob/Upload"
         };
 
         public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, int limit, TimeSpan period)
@@ -46,6 +47,7 @@ namespace NewHorizon.Middleware
                 await context.Response.WriteAsync("API key required in Header under X-Api-Key");
                 return;
             }
+            key += context.Request.Path;
 
             var counter = _cache.GetOrCreate(key, e =>
             {

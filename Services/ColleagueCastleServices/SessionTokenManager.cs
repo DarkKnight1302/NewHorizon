@@ -104,6 +104,32 @@ namespace NewHorizon.Services.ColleagueCastleServices
             return false;
         }
 
+        public async Task<bool> ValidateSessionToken(string sessionToken)
+        {
+            string userId = await this.GetUserNameFromToken(sessionToken).ConfigureAwait(false);
+
+            if (userId == null)
+            {
+                return false;
+            }
+
+            ItemResponse<UserSessionToken> responseToken;
+            try
+            {
+                responseToken = await _container.ReadItemAsync<UserSessionToken>(userId, new PartitionKey(userId));
+            }
+            catch (CosmosException)
+            {
+                responseToken = null;
+            }
+            if (responseToken != null && responseToken.Resource.Token == sessionToken)
+            {
+                return responseToken.Resource.Expiry >= DateTime.UtcNow;
+            }
+
+            return false;
+        }
+
         private async Task<string> GetTokenIfAlreadySignedIn(string userId)
         {
             ItemResponse<UserSessionToken> responseToken;
