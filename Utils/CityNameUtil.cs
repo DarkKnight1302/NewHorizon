@@ -13,9 +13,9 @@ namespace NewHorizon.Utils
             {
                 foreach (var componentType in addressComponent.Types)
                 {
-                    if (AddressComponentType.Locality == componentType)
+                    if (AddressComponentType.Postal_Code == componentType)
                     {
-                        cityName = addressComponent.LongName;
+                        cityName = addressComponent.LongName.Substring(0, 3);
                         break;
                     }
                 }
