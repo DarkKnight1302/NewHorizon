@@ -7,13 +7,41 @@ using System.ComponentModel;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {
-    public class SessionTokenManager : ISessionTokenManager
+    public class SessionTokenManager : ISessionTokenManager, IClearExpiredData
     {
         private readonly Microsoft.Azure.Cosmos.Container _container;
 
         public SessionTokenManager(ICosmosDbService cosmosDbService)
         {
             _container = cosmosDbService.GetContainerFromColleagueCastle("UserSessionToken");
+        }
+
+        public async Task ClearData()
+        {
+            List<string> itemsToDelete = new List<string>();
+            var feedIterator = this._container.GetItemQueryIterator<UserSessionToken>();
+            while (feedIterator.HasMoreResults)
+            {
+                FeedResponse<UserSessionToken> response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                if (response != null && response.Resource.Any())
+                {
+                    foreach (var userSessionToken in response.Resource)
+                    {
+                        if (userSessionToken.Expiry < DateTime.UtcNow)
+                        {
+                            itemsToDelete.Add(userSessionToken.Id);
+                        }
+                    }
+                }
+            }
+
+            if (itemsToDelete.Count > 0)
+            {
+                foreach (var id in itemsToDelete)
+                {
+                    await this._container.DeleteItemAsync<UserSessionToken>(id, new PartitionKey(id)).ConfigureAwait(false);
+                }
+            }
         }
 
         public async Task<string> GenerateSessionToken(string userId)
