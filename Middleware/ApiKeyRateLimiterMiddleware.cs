@@ -10,6 +10,11 @@ namespace NewHorizon.Middleware
         private readonly IMemoryCache _cache;
         private readonly int _limit;
         private readonly TimeSpan _period;
+        private readonly List<string> RateLimitedApis = new List<string>()
+        {
+            "/api/PlaceSuggestion",
+            "/api/OTP/generate-and-send"
+        };
 
         public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, int limit, TimeSpan period)
         {
@@ -21,7 +26,13 @@ namespace NewHorizon.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            if (!context.Request.Path.StartsWithSegments("/api/OTP/generate-and-send"))
+            bool skipRateLimiting = true;
+            if (RateLimitedApis.Where(api => context.Request.Path.StartsWithSegments(api)).Any())
+            {
+                skipRateLimiting = false;
+            }
+
+            if (skipRateLimiting)
             {
                 await _next(context);
                 return;

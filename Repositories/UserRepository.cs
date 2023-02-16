@@ -19,7 +19,7 @@ namespace NewHorizon.Repositories
 
         public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId)
         {
-            username= username.Trim();
+            username = username.Trim();
             Models.ColleagueCastleModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
             if (existingUser != null)
             {
@@ -49,6 +49,16 @@ namespace NewHorizon.Repositories
             };
             await this.container.CreateItemAsync(user).ConfigureAwait(false);
             return true;
+        }
+
+        public async Task<bool> DeleteUser(string username)
+        {
+            var response = await this.container.DeleteItemAsync<Models.ColleagueCastleModels.User>(username, new PartitionKey(username)).ConfigureAwait(false);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<Models.ColleagueCastleModels.User> GetUserByUserNameAsync(string username)
