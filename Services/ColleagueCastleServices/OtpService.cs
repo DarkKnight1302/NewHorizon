@@ -34,7 +34,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
 
             using (SmtpClient smtpClient = new SmtpClient())
             {
-                smtpClient.Connect("smtp.gmail.com", 465, true);
+                smtpClient.Connect("smtp.gmail.com", 587, false);
 
                 //SMTP server authentication if needed
                 smtpClient.Authenticate("admin@colleaguecastle.in", secretService.GetSecretValue("COLLEAGUE_CASTLE_EMAIL_PASSWORD"));
