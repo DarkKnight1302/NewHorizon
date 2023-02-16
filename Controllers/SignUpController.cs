@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using NewHorizon.Constants;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Repositories.Interfaces;
@@ -14,11 +15,13 @@ namespace NewHorizon.Controllers
     {
         private readonly IUserRepository userRepository;
         private readonly ISignUpTokenService signUpTokenService;
+        private readonly ISessionTokenManager sessionTokenManager;
 
-        public SignUpController(IUserRepository userRepository, ISignUpTokenService signUpTokenService)
+        public SignUpController(IUserRepository userRepository, ISignUpTokenService signUpTokenService, ISessionTokenManager sessionTokenManager)
         {
             this.userRepository = userRepository;
             this.signUpTokenService = signUpTokenService;
+            this.sessionTokenManager = sessionTokenManager;
         }
 
         [ApiExplorerSettings(GroupName = "v1")]
@@ -54,7 +57,8 @@ namespace NewHorizon.Controllers
             {
                 return BadRequest("User already exist");
             }
-            return Ok();
+            string sessionToken = await this.sessionTokenManager.GenerateSessionToken(request.Username).ConfigureAwait(false);
+            return Ok(new SignInResponse(sessionToken));
         }
     }
 }
