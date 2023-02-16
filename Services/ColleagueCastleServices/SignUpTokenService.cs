@@ -75,7 +75,6 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 if (itemResponse.Resource.EmailAddress == emailAddress.ToLower() && itemResponse.Resource.Expiry >= DateTime.UtcNow)
                 {
-                    _ = Task.Run(async () => await container.DeleteItemAsync<SignUpToken>(token, new PartitionKey(token)).ConfigureAwait(false));
                     return true;
                 }
             }

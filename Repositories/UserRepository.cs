@@ -19,11 +19,13 @@ namespace NewHorizon.Repositories
 
         public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId)
         {
+            username= username.Trim();
             Models.ColleagueCastleModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
             if (existingUser != null)
             {
                 return false;
             }
+            corporateEmailId = corporateEmailId.Trim().ToLower();
             string corporateEmailHash = HashingUtil.HashEmail(corporateEmailId);
             bool userExist = await this.UserExistByCorporateEmailHash(corporateEmailHash).ConfigureAwait(false);
             if (userExist)
