@@ -65,9 +65,11 @@ namespace NewHorizon.Models.ColleagueCastleModels
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FlatType
     {
+        RK1,
         BHK1,
         BHK2,
         BHK3,
+        BHK4,
         OTHER,
         Ignore
     }

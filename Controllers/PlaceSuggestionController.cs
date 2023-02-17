@@ -32,8 +32,8 @@ public class PlaceSuggestionController : ControllerBase
         {
             return BadRequest("Invalid X-Api-Key");
         }
-        string userId = await this.sessionTokenManager.GetUserNameFromToken(apiKey).ConfigureAwait(false);
-        if (string.IsNullOrEmpty(userId))
+        bool isValid = await this.sessionTokenManager.ValidateSessionToken(apiKey).ConfigureAwait(false);
+        if (!isValid)
         {
             return BadRequest("Invalid X-Api-Key, need session token as X-Api-key");
         }
