@@ -1,4 +1,4 @@
-﻿using NewHorizon.Models.ColleagueCastleModels;
+﻿using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 
 namespace NewHorizon.Repositories.Interfaces
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 
-namespace NewHorizon.Models.ColleagueCastleModels
+namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
 {
     public class PropertyPost
     {
@@ -18,6 +18,8 @@ namespace NewHorizon.Models.ColleagueCastleModels
         public string City { get; set; }
 
         public string Company { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 
     public class Location

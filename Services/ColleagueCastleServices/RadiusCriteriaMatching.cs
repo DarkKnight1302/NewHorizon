@@ -1,6 +1,7 @@
 ﻿using GeoCoordinatePortable;
 using GoogleApi.Entities.Places.Details.Response;
 using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using SkipTrafficLib.Services.Interfaces;
 

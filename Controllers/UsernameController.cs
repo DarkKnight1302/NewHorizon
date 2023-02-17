@@ -1,6 +1,7 @@
 ﻿using GoogleApi.Entities.Places.Common;
 using Microsoft.AspNetCore.Mvc;
 using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Repositories.Interfaces;
 
 namespace NewHorizon.Controllers;

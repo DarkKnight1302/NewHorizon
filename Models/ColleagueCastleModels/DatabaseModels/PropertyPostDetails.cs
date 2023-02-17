@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 
-namespace NewHorizon.Models.ColleagueCastleModels
+namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
 {
     public class PropertyPostDetails
     {

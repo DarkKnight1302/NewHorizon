@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Cosmos;
-using NewHorizon.Models.ColleagueCastleModels;
+﻿using Microsoft.Azure.Cosmos;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.Interfaces;
 using NewHorizon.Utils;
@@ -20,7 +17,7 @@ namespace NewHorizon.Repositories
         public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId)
         {
             username = username.Trim();
-            Models.ColleagueCastleModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
+            Models.ColleagueCastleModels.DatabaseModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
             if (existingUser != null)
             {
                 return false;
@@ -35,7 +32,7 @@ namespace NewHorizon.Repositories
 
             (string HashedPassword, string salt) passwordAndSalt = HashingUtil.HashPassword(password);
             string companyName = corporateEmailId.Split('@')[1].ToLower();
-            Models.ColleagueCastleModels.User user = new Models.ColleagueCastleModels.User
+            Models.ColleagueCastleModels.DatabaseModels.User user = new Models.ColleagueCastleModels.DatabaseModels.User
             {
                 Id = username,
                 UserName = username,
@@ -45,7 +42,8 @@ namespace NewHorizon.Repositories
                 Salt = passwordAndSalt.salt,
                 HashedPassword = passwordAndSalt.HashedPassword,
                 Company = companyName,
-                CorporateEmailHash = corporateEmailHash
+                CorporateEmailHash = corporateEmailHash,
+                CreatedAt = DateTime.UtcNow
             };
             await this.container.CreateItemAsync(user).ConfigureAwait(false);
             return true;
@@ -53,7 +51,7 @@ namespace NewHorizon.Repositories
 
         public async Task<bool> DeleteUser(string username)
         {
-            var response = await this.container.DeleteItemAsync<Models.ColleagueCastleModels.User>(username, new PartitionKey(username)).ConfigureAwait(false);
+            var response = await this.container.DeleteItemAsync<Models.ColleagueCastleModels.DatabaseModels.User>(username, new PartitionKey(username)).ConfigureAwait(false);
             if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NoContent)
             {
                 return true;
@@ -61,12 +59,12 @@ namespace NewHorizon.Repositories
             return false;
         }
 
-        public async Task<Models.ColleagueCastleModels.User> GetUserByUserNameAsync(string username)
+        public async Task<Models.ColleagueCastleModels.DatabaseModels.User> GetUserByUserNameAsync(string username)
         {
-            ItemResponse<Models.ColleagueCastleModels.User> user = null;
+            ItemResponse<Models.ColleagueCastleModels.DatabaseModels.User> user = null;
             try
             {
-                user = await this.container.ReadItemAsync<Models.ColleagueCastleModels.User>(username, new PartitionKey(username)).ConfigureAwait(false);
+                user = await this.container.ReadItemAsync<Models.ColleagueCastleModels.DatabaseModels.User>(username, new PartitionKey(username)).ConfigureAwait(false);
             }
             catch (CosmosException)
             {
@@ -85,10 +83,10 @@ namespace NewHorizon.Repositories
             .WithParameter("@value", corporateEmailHash);
 
             // Execute the query and retrieve the results
-            FeedIterator<Models.ColleagueCastleModels.User> queryResultSet = container.GetItemQueryIterator<Models.ColleagueCastleModels.User>(queryDefinition);
+            FeedIterator<Models.ColleagueCastleModels.DatabaseModels.User> queryResultSet = container.GetItemQueryIterator<Models.ColleagueCastleModels.DatabaseModels.User>(queryDefinition);
             while (queryResultSet.HasMoreResults)
             {
-                FeedResponse<Models.ColleagueCastleModels.User> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
+                FeedResponse<Models.ColleagueCastleModels.DatabaseModels.User> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
                 if (currentResultSet != null && currentResultSet.Count > 0)
                 {
                     return true;

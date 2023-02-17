@@ -1,5 +1,6 @@
 ﻿using GoogleApi.Entities.Places.Details.Response;
 using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Utils;

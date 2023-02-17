@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 
-namespace NewHorizon.Models.ColleagueCastleModels
+namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
 {
-    public class OtpObject
+    public class SignUpToken
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
@@ -11,7 +11,9 @@ namespace NewHorizon.Models.ColleagueCastleModels
         [JsonProperty(PropertyName = "uid")]
         public string Uid { get; set; }
 
-        public int Otp { get; set; }
+        public string EmailAddress { get; set; }
+
+        public string Token { get; set; }
 
         public DateTime Expiry { get; set; }
     }

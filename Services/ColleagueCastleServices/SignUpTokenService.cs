@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using NewHorizon.Models;
-using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
 using static System.Net.WebRequestMethods;

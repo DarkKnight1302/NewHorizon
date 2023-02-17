@@ -1,4 +1,5 @@
 ﻿using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
 namespace NewHorizon.Services.ColleagueCastleServices

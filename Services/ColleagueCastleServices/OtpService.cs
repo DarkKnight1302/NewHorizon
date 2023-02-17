@@ -1,9 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
 using MimeKit;
-using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Services.Interfaces;
 using MailKit.Net.Smtp;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {

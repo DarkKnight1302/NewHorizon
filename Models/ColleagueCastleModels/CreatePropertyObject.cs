@@ -1,4 +1,6 @@
-﻿namespace NewHorizon.Models.ColleagueCastleModels
+﻿using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
+
+namespace NewHorizon.Models.ColleagueCastleModels
 {
     public class CreatePropertyObject
     {

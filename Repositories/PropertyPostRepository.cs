@@ -1,7 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
 using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.Interfaces;
+using NewHorizon.Utils;
 
 namespace NewHorizon.Repositories
 {
@@ -9,11 +11,13 @@ namespace NewHorizon.Repositories
     {
         private readonly Container container;
         private readonly Container PropertyDetailsContainer;
+        private readonly Container PropertyDetailsArchiveContainer;
 
         public PropertyPostRepository(ICosmosDbService cosmosDbService)
         {
             this.container = cosmosDbService.GetContainerFromColleagueCastle("PropertyPost");
             this.PropertyDetailsContainer = cosmosDbService.GetContainerFromColleagueCastle("PropertyPostDetails");
+            this.PropertyDetailsArchiveContainer = cosmosDbService.GetContainerFromColleagueCastle("PropertyPostDetailsArchive");
         }
 
         public async Task<string> CreatePropertyPostAsync(CreatePropertyObject createPropertyObject)
@@ -27,6 +31,7 @@ namespace NewHorizon.Repositories
                 Available = true,
                 City = createPropertyObject.city,
                 Company = createPropertyObject.company,
+                CreatedAt = DateTime.UtcNow
             };
             await this.container.UpsertItemAsync(propertyPost).ConfigureAwait(false);
             var propertyPostDetails = new PropertyPostDetails
@@ -54,10 +59,54 @@ namespace NewHorizon.Repositories
             return uniqueId;
         }
 
+        public async Task<bool> DeletePropertyPostAsync(PropertyPostDetails propertyPostDetails)
+        {
+            PropertyPost propertyPost = await this.container.ReadItemAsync<PropertyPost>(propertyPostDetails.Id, new PartitionKey(propertyPostDetails.Id)).ConfigureAwait(false);
+
+            if (propertyPost == null)
+            {
+                return false;
+            }
+            string uid = Guid.NewGuid().ToString();
+            PropertyPostDetailsArchive postDetailsArchive = new PropertyPostDetailsArchive()
+            {
+                Id = uid,
+                Uid = uid,
+                PostId = propertyPostDetails.Id,
+                PropertyPostDetails = propertyPostDetails,
+                PropertyPost = propertyPost,
+                CreatedAt = DateTime.UtcNow,
+            };
+            await this.PropertyDetailsArchiveContainer.CreateItemAsync(postDetailsArchive).ConfigureAwait(false);
+            await this.container.DeleteItemAsync<PropertyPost>(propertyPostDetails.Id, new PartitionKey(propertyPostDetails.Id)).ConfigureAwait(false);
+            await this.PropertyDetailsContainer.DeleteItemAsync<PropertyPostDetails>(propertyPostDetails.Id, new PartitionKey(propertyPostDetails.Id)).ConfigureAwait(false);
+            return true;
+        }
+
+        public async Task<IEnumerable<PropertyPostDetails>> GetAllAvailablePostOfUserAsync(string userId)
+        {
+            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.CreatorUserName = @value1")
+            .WithParameter("@value1", userId);
+
+            List<PropertyPostDetails> propertyPostDetails = new List<PropertyPostDetails>();
+
+            // Execute the query and retrieve the results
+            FeedIterator<PropertyPostDetails> queryResultSet = PropertyDetailsContainer.GetItemQueryIterator<PropertyPostDetails>(queryDefinition);
+            while (queryResultSet.HasMoreResults)
+            {
+                FeedResponse<PropertyPostDetails> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
+                if (currentResultSet != null && currentResultSet.Count > 0)
+                {
+                    propertyPostDetails.AddRange(currentResultSet.Resource);
+                }
+            }
+            return propertyPostDetails;
+        }
+
         public async Task<IEnumerable<PropertyPostDetails>> GetAllPropertyPostDetailsAsync(string city, string company)
         {
-            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.City = @value1 and c.Company = @value2")
-            .WithParameter("@value1", city).WithParameter("@value2", company);
+            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.City = @value1 and c.Company = @value2 and c.Available = @value3")
+            .WithParameter("@value1", city).WithParameter("@value2", company).WithParameter("@value3", true);
 
             List<(string, PartitionKey)> propertyPostIds = new List<(string, PartitionKey)>();
 
@@ -68,7 +117,7 @@ namespace NewHorizon.Repositories
                 FeedResponse<PropertyPost> currentResultSet = await queryResultSet.ReadNextAsync().ConfigureAwait(false);
                 if (currentResultSet != null && currentResultSet.Count > 0)
                 {
-                    foreach(var post in currentResultSet.Resource)
+                    foreach (var post in currentResultSet.Resource)
                     {
                         propertyPostIds.Add((post.Id, new PartitionKey(post.Id)));
                     }
@@ -82,7 +131,7 @@ namespace NewHorizon.Repositories
                     return propertyPostResponse.Resource;
                 }
             }
-           return Enumerable.Empty<PropertyPostDetails>();
+            return Enumerable.Empty<PropertyPostDetails>();
         }
 
         private string GetUniqueIdForPost(string username, string placeId)

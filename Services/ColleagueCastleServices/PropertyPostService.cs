@@ -1,6 +1,7 @@
 ﻿using GoogleApi.Entities.Common.Enums;
 using GoogleApi.Entities.Places.Details.Response;
 using NewHorizon.Models.ColleagueCastleModels;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Utils;
@@ -78,14 +79,30 @@ namespace NewHorizon.Services.ColleagueCastleServices
             return propertyPostId;
         }
 
-        public Task<bool> DeletePropertyPostAsync(string propertyPostId)
+        public async Task<bool> DeletePropertyPostAsync(string propertyPostId, string userId)
         {
-            throw new NotImplementedException();
+            IEnumerable<PropertyPostDetails> userPropertyPosts = await this.GetUserPropertyPostsAsync(userId).ConfigureAwait(false);
+            if (userPropertyPosts.Any())
+            {
+                PropertyPostDetails? propertyPost = userPropertyPosts.Where(post => propertyPostId == post.Id).FirstOrDefault();
+                if (propertyPost != null)
+                {
+                    bool success = await this.propertyPostRepository.DeletePropertyPostAsync(propertyPost);
+                    return success;
+                }
+            }
+            return false;
         }
 
         public Task<PropertyPost> GetPropertyPostAsync(string propertyPostId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<PropertyPostDetails>> GetUserPropertyPostsAsync(string userId)
+        {
+            IEnumerable<PropertyPostDetails> propertyPosts = await this.propertyPostRepository.GetAllAvailablePostOfUserAsync(userId);
+            return propertyPosts;
         }
 
         public Task<bool> UpdatePropertyPostAsync(PropertyPost propertyPost)
