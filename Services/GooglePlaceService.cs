@@ -1,4 +1,5 @@
 ﻿using GoogleApi;
+using GoogleApi.Entities.Common;
 using GoogleApi.Entities.Places.Common;
 using GoogleApi.Entities.Places.Details.Request;
 using GoogleApi.Entities.Places.Details.Response;
@@ -19,6 +20,7 @@ namespace SkipTrafficLib.Services
         private readonly IQueryAutoCompleteApi queryAutoCompleteApi;
         private RequestThresholdPerDay requestThresholdPerDay;
         private readonly ISecretService secretService;
+        private readonly Coordinate baseLocation;
 
         public GooglePlaceService(ISecretService secretService, IMemoryCache memoryCache)
         {
@@ -26,6 +28,7 @@ namespace SkipTrafficLib.Services
             this.queryAutoCompleteApi = GooglePlaces.QueryAutoComplete;
             this.secretService = secretService;
             this.requestThresholdPerDay = new RequestThresholdPerDay(500);
+            this.baseLocation = new Coordinate(17.385044, 78.486671);
         }
 
         public async Task<IEnumerable<Prediction>> GetSuggestionsAsync(string input)
@@ -34,9 +37,15 @@ namespace SkipTrafficLib.Services
             {
                 return Enumerable.Empty<Prediction>();
             }
-            var request = new PlacesQueryAutoCompleteRequest { Input = input, Key = this.secretService.GetSecretValue("GOOGLE_PLACE_API_KEY") };
+            var request = new PlacesQueryAutoCompleteRequest
+            {
+                Input = input,
+                Key = this.secretService.GetSecretValue("GOOGLE_PLACE_API_KEY"),
+                Location= this.baseLocation,
+                Radius = 50 * 1000,
+            };
             PlacesQueryAutoCompleteResponse response = await this.queryAutoCompleteApi.QueryAsync(request, null).ConfigureAwait(false);
-            return response.Predictions;
+            return response.Predictions.Where(x => x.PlaceId != null);
         }
 
         public async Task<DetailsResult> GetPlaceDetailsAsync(string placeId)

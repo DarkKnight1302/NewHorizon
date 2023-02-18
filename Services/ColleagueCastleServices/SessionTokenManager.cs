@@ -141,7 +141,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 responseToken = null;
             }
-            if (responseToken != null && responseToken.Resource.Expiry >= DateTime.UtcNow)
+            if (responseToken != null && responseToken.Resource.Expiry >= DateTime.UtcNow && (responseToken.Resource.Expiry - DateTime.UtcNow) > TimeSpan.FromMinutes(15))
             {
                 return responseToken.Resource.Token;
             }
