@@ -1,6 +1,7 @@
 ﻿using GoogleApi.Entities.Places.Common;
 using Microsoft.AspNetCore.Mvc;
 using NewHorizon.Models;
+using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using NewHorizon.Services.Interfaces;
 using SkipTrafficLib.Services.Interfaces;
@@ -38,7 +39,7 @@ public class PlaceSuggestionController : ControllerBase
             return BadRequest("Invalid X-Api-Key, need session token as X-Api-key");
         }
 
-        var response = await this.googlePlaceService.GetSuggestionsAsync(inputString).ConfigureAwait(false);
-        return  Ok(response.Select(x => new PlacePrediction(x.PlaceId, x.Description)));
+        var response = await this.googlePlaceService.GetSuggestionsAsync(inputString, apiKey).ConfigureAwait(false);
+        return  Ok(response.Select(x => new PlacePredictionApiResponse(x.PlaceId, x.Description)));
     }
 }

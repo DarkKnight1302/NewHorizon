@@ -1,15 +1,14 @@
-﻿namespace NewHorizon.Models
+﻿using System.Text.Json.Serialization;
+
+namespace NewHorizon.Models
 {
     public class PlacePrediction
     {
-        public PlacePrediction(string placeId, string desc) 
-        {
-            this.PlaceId = placeId;
-            this.Description = desc;
-        }
-
+        [JsonPropertyName("place_id")]
         public string PlaceId { get; set; }
 
         public string Description { get; set; }
+
+        public string[] types { get; set; }
     }
 }
