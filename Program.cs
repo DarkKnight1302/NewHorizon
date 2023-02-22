@@ -70,7 +70,6 @@ builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 var app = builder.Build();
-app.Services.GetService<IExpiredDataClearingJob>()?.Init();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

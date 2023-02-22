@@ -60,5 +60,26 @@ namespace NewHorizon.Controllers
 
             return BadRequest("Not able to fetch details.");
         }
+
+        [ApiExplorerSettings(GroupName = "v1")]
+        [HttpPost("create-admin-user")]
+        public async Task<IActionResult> CreateAdminUser([FromBody] CreateAdminUserRequest request)
+        {
+            if (request.SecretToken == null)
+            {
+                return BadRequest("Invalid secret token");
+            }
+
+            if (request.SecretToken == this.secretService.GetSecretValue("INTERNAL_SECRET_TOKEN"))
+            {
+                bool userCreated = await this.userRepository.CreateAdminUser(request.UserName, request.Password).ConfigureAwait(false);
+                if (userCreated)
+                {
+                    return Ok("User Created Successfully");
+                }
+            }
+
+            return BadRequest("Unable to Create User");
+        }
     }
 }

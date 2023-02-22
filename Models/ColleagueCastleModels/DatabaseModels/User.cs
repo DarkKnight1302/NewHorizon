@@ -11,6 +11,8 @@ namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
         [JsonProperty(PropertyName = "uid")]
         public string UserName { get; set; }
 
+        public bool IsAdmin { get; set; }
+
         public string Salt { get; set; }
 
         public string Name { get; set; }

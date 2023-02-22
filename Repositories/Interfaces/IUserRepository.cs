@@ -8,6 +8,8 @@ namespace NewHorizon.Repositories.Interfaces
 
         public Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId);
 
+        public Task<bool> CreateAdminUser(string username, string password);
+
         public Task<bool> DeleteUser(string username);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Repositories.Interfaces;
 using NewHorizon.Services.Interfaces;
 using NewHorizon.Utils;
@@ -12,6 +13,28 @@ namespace NewHorizon.Repositories
         public UserRepository(ICosmosDbService cosmosDbService)
         {
             this.container = cosmosDbService.GetContainerFromColleagueCastle("User");
+        }
+
+        public async Task<bool> CreateAdminUser(string username, string password)
+        {
+            Models.ColleagueCastleModels.DatabaseModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
+            if (existingUser != null)
+            {
+                return false;
+            }
+            (string HashedPassword, string salt) passwordAndSalt = HashingUtil.HashPassword(password);
+            Models.ColleagueCastleModels.DatabaseModels.User user = new Models.ColleagueCastleModels.DatabaseModels.User
+            {
+                Id = username,
+                UserName = username,
+                Name = "Admin",
+                Salt = passwordAndSalt.salt,
+                HashedPassword = passwordAndSalt.HashedPassword,
+                IsAdmin = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            await this.container.CreateItemAsync(user).ConfigureAwait(false);
+            return true;
         }
 
         public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId)
@@ -42,6 +65,7 @@ namespace NewHorizon.Repositories
                 Salt = passwordAndSalt.salt,
                 HashedPassword = passwordAndSalt.HashedPassword,
                 Company = companyName,
+                IsAdmin = false,
                 CorporateEmailHash = corporateEmailHash,
                 CreatedAt = DateTime.UtcNow
             };
