@@ -9,7 +9,7 @@ namespace NewHorizon.Services.ColleagueCastleServices.Interfaces
 
         public Task<bool> UpdatePropertyPostAsync(PropertyPost propertyPost);
 
-        public Task<PropertyPost> GetPropertyPostAsync(string propertyPostId);
+        public Task<PropertyPostDetails> GetPropertyPostAsync(string propertyPostId);
 
         public Task<IEnumerable<PropertyPostDetails>> GetUserPropertyPostsAsync(string userId);
 

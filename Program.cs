@@ -65,11 +65,15 @@ builder.Services.AddSingleton<ICriteriaMatching, UsernameCriteriaMatching>();
 builder.Services.AddSingleton<IPropertyMatchingService, PropertyMatchingService>();
 builder.Services.AddSingleton<ISearchPropertyService, SearchPropertyService>();
 builder.Services.AddSingleton<IExpiredDataClearingJob, ExpiredDataClearingJob>();
+builder.Services.AddSingleton<IMailingService, MailingService>();
+builder.Services.AddSingleton<IInterestService, InterestService>();
+builder.Services.AddSingleton<IUserInterestRepository, UserInterestRepository>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 var app = builder.Build();
+app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()), 10, TimeSpan.FromMinutes(5));
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -84,7 +88,6 @@ app.UseCors(builder =>
            .AllowAnyHeader()
            .AllowCredentials();
 });
-app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()),  10,  TimeSpan.FromMinutes(5));
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

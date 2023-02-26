@@ -94,9 +94,9 @@ namespace NewHorizon.Services.ColleagueCastleServices
             return false;
         }
 
-        public Task<PropertyPost> GetPropertyPostAsync(string propertyPostId)
+        public async Task<PropertyPostDetails> GetPropertyPostAsync(string propertyPostId)
         {
-            throw new NotImplementedException();
+            return await this.propertyPostRepository.GetPropertryPostDetailsById(propertyPostId).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<PropertyPostDetails>> GetUserPropertyPostsAsync(string userId)

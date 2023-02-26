@@ -18,10 +18,16 @@ namespace NewHorizon.Controllers
             this.sessionTokenManager = sessionTokenManager;
         }
 
+        [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> SignIn([FromBody] LoginData loginData)
         {
+            var userId = HttpContext.Request.Headers["X-Api-Key"];
+            if (string.IsNullOrEmpty(userId) || loginData.Username != userId)
+            {
+                return BadRequest("Invalid User Id");
+            }
             var user = await _userRepository.GetUserByUserNameAsync(loginData.Username).ConfigureAwait(false);
             if (user == null)
             {

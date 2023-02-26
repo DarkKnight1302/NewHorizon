@@ -13,5 +13,7 @@ namespace NewHorizon.Repositories.Interfaces
         public Task<IEnumerable<PropertyPostDetails>> GetAllAvailablePostOfUserAsync(string userId);
 
         public Task<bool> DeletePropertyPostAsync(PropertyPostDetails propertyPostDetails);
+
+        public Task<PropertyPostDetails> GetPropertryPostDetailsById(string postId);
     }
 }

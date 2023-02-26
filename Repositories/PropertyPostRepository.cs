@@ -134,6 +134,16 @@ namespace NewHorizon.Repositories
             return Enumerable.Empty<PropertyPostDetails>();
         }
 
+        public async Task<PropertyPostDetails> GetPropertryPostDetailsById(string postId)
+        {
+            var itemResponse = await this.PropertyDetailsContainer.ReadItemAsync<PropertyPostDetails>(postId, new PartitionKey(postId)).ConfigureAwait(false);
+            if (itemResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return itemResponse.Resource;
+            }
+            return null;
+        }
+
         private string GetUniqueIdForPost(string username, string placeId)
         {
             return username + "_" + placeId;
