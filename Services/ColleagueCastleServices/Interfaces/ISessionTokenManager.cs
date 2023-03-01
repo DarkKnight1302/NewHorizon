@@ -9,5 +9,7 @@
         public Task<bool> ValidateSessionToken(string sessionToken);
 
         public Task<string> GetUserNameFromToken(string sessionToken);
+
+        public void DeleteUserSession(string userId, string sessionToken);
     }
 }

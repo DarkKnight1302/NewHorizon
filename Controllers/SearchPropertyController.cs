@@ -37,14 +37,15 @@ namespace NewHorizon.Controllers
             {
                 return BadRequest("Invalid Session token");
             }
-            IReadOnlyList<PropertyPostDetails> propertyPostDetails = await this.searchPropertyService.GetMatchingPropertyListAsync(searchPropertyRequest).ConfigureAwait(false);
 
-            if (propertyPostDetails == null)
+            (IReadOnlyList<PropertyPostDetails>? propertyDetails, string error) propertyPostDetails = await this.searchPropertyService.GetMatchingPropertyListAsync(searchPropertyRequest).ConfigureAwait(false);
+
+            if (propertyPostDetails.propertyDetails == null)
             {
-                return BadRequest("Invalid request");
+                return BadRequest(propertyPostDetails.error);
             }
 
-            return Ok(new SearchPropertyResponse(propertyPostDetails));
+            return Ok(new SearchPropertyResponse(propertyPostDetails.propertyDetails));
         }
     }
 }

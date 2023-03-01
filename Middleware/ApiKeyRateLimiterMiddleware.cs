@@ -16,7 +16,8 @@ namespace NewHorizon.Middleware
             "/api/OTP/generate-and-send",
             "/api/Blob/Upload",
             "/api/Interest/show-interest",
-            "/api/SignIn"
+            "/api/SignIn",
+            "/api/SignOut"
         };
 
         public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, int limit, TimeSpan period)

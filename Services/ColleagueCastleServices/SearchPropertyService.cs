@@ -26,19 +26,23 @@ namespace NewHorizon.Services.ColleagueCastleServices
             this.userRepository = userRepository;
             this.propertyMatchingService = propertyMatchingService;
         }
-        public async Task<IReadOnlyList<PropertyPostDetails>> GetMatchingPropertyListAsync(SearchPropertyRequest searchPropertyRequest)
+        public async Task<(IReadOnlyList<PropertyPostDetails>?, string error)> GetMatchingPropertyListAsync(SearchPropertyRequest searchPropertyRequest)
         {
             User user = await this.userRepository.GetUserByUserNameAsync(searchPropertyRequest.UserId).ConfigureAwait(false);
             if (user == null)
             {
-                return null;
+                return (null, "User Not found");
             }
             DetailsResult placeDetails = await this.googlePlaceService.GetPlaceDetailsAsync(searchPropertyRequest.OfficePlaceId);
             if (placeDetails == null)
             {
-                return null;
+                return (null, "Incorrect PlaceId");
             }
             string cityName = CityNameUtil.GetCityNameFromPlaceDetails(placeDetails);
+            if (cityName == null)
+            {
+                return (null, "Please provide Specific Location");
+            }
             IEnumerable<PropertyPostDetails> propertyPostDetailsList = await this.propertyPostRepository.GetAllPropertyPostDetailsAsync(cityName, user.Company).ConfigureAwait(false);
 
             List<PropertyPostDetails> matchedProperties = new List<PropertyPostDetails>();
@@ -50,7 +54,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
                     matchedProperties.Add(propertyPostDetail);
                 }
             }
-            return matchedProperties;
+            return (matchedProperties, string.Empty);
         }
     }
 }

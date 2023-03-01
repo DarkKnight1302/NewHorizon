@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using GoogleApi.Entities.Search.Video.Common;
+using Microsoft.Azure.Cosmos;
 using NewHorizon.Models;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
@@ -42,6 +43,11 @@ namespace NewHorizon.Services.ColleagueCastleServices
                     await this._container.DeleteItemAsync<UserSessionToken>(id, new PartitionKey(id)).ConfigureAwait(false);
                 }
             }
+        }
+
+        public async void DeleteUserSession(string userId, string sessionToken)
+        {
+            await this._container.DeleteItemAsync<UserSessionToken>(userId, new PartitionKey(userId)).ConfigureAwait(false);
         }
 
         public async Task<string> GenerateSessionToken(string userId)

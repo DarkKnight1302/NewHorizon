@@ -5,6 +5,6 @@ namespace NewHorizon.Services.ColleagueCastleServices.Interfaces
 {
     public interface ISearchPropertyService
     {
-        public Task<IReadOnlyList<PropertyPostDetails>> GetMatchingPropertyListAsync(SearchPropertyRequest searchPropertyRequest);
+        public Task<(IReadOnlyList<PropertyPostDetails>?, string error)> GetMatchingPropertyListAsync(SearchPropertyRequest searchPropertyRequest);
     }
 }
