@@ -31,5 +31,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
 
         [Required]
         public string SignUpToken { get; set; }
+
+        public string PreSignUpToken { get; set; }
     }
 }

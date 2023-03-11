@@ -15,6 +15,8 @@ using Newtonsoft.Json.Converters;
 using Microsoft.Extensions.Caching.Memory;
 using NewHorizon.Middleware;
 using Microsoft.Extensions.Options;
+using System.Configuration;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,7 +70,14 @@ builder.Services.AddSingleton<IExpiredDataClearingJob, ExpiredDataClearingJob>()
 builder.Services.AddSingleton<IMailingService, MailingService>();
 builder.Services.AddSingleton<IInterestService, InterestService>();
 builder.Services.AddSingleton<IUserInterestRepository, UserInterestRepository>();
+builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration.GetValue<string>("GOOGLE_AUTH_CLIENTID") ?? Environment.GetEnvironmentVariable("GOOGLE_AUTH_CLIENTID");
+        options.ClientSecret = builder.Configuration.GetValue<string>("GOOGLE_AUTH_CLIENT_SECRET") ?? Environment.GetEnvironmentVariable("GOOGLE_AUTH_CLIENT_SECRET");
+    });
 builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
@@ -88,7 +97,7 @@ app.UseCors(builder =>
            .AllowCredentials();
 });
 app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()), 10, TimeSpan.FromMinutes(5));
-
+app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
