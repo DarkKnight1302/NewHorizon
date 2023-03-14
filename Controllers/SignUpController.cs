@@ -33,7 +33,7 @@ namespace NewHorizon.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!Regex.IsMatch(request.Username, @"^[a-zA-Z0-9]+$"))
+            if (string.IsNullOrEmpty(request.PreSignUpToken) && !Regex.IsMatch(request.Username, @"^[a-zA-Z0-9]+$"))
             {
                 ModelState.AddModelError("Username", "Username can only contain letters and numbers.");
                 return BadRequest(ModelState);
@@ -51,6 +51,15 @@ namespace NewHorizon.Controllers
             if (!validToken)
             {
                 return BadRequest("Invalid SignUp Token");
+            }
+            if (!string.IsNullOrEmpty(request.PreSignUpToken))
+            {
+                bool validPreSignUpToken = await this.signUpTokenService.VerifySignUpTokenAsync(request.PreSignUpToken, request.Username.ToLower());
+                if (!validPreSignUpToken)
+                {
+                    return BadRequest("Invalid PreSignUp token");
+                }
+                request.Username = request.Username.ToLower();
             }
             bool success = await this.userRepository.CreateUserIfNotExist(username: request.Username, password: request.Password, name: request.Name, phoneNumber: request.PhoneNumber, email: request.EmailId, corporateEmailId: request.CorporateEmailId);
             if (!success)
