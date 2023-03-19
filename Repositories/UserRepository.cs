@@ -101,6 +101,26 @@ namespace NewHorizon.Repositories
             return null;
         }
 
+        public async Task<bool> UpdateUserPassword(Models.ColleagueCastleModels.DatabaseModels.User user, string password)
+        {
+            if (user == null)
+            {
+                return false;
+            }
+
+            (string HashedPassword, string salt) passwordAndSalt = HashingUtil.HashPassword(password);
+            user.HashedPassword = passwordAndSalt.HashedPassword;
+            user.Salt = passwordAndSalt.salt;
+            try
+            {
+                await this.container.UpsertItemAsync(user).ConfigureAwait(false);
+            } catch (CosmosException)
+            {
+                return false;
+            }
+            return true;
+        }
+
         private async Task<bool> UserExistByCorporateEmailHash(string corporateEmailHash)
         {
             QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.CorporateEmailHash = @value")

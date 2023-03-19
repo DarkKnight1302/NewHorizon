@@ -71,6 +71,7 @@ builder.Services.AddSingleton<IMailingService, MailingService>();
 builder.Services.AddSingleton<IInterestService, InterestService>();
 builder.Services.AddSingleton<IUserInterestRepository, UserInterestRepository>();
 builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
+builder.Services.AddSingleton<IGenerateAndSendPasswordService, GenerateAndSendPasswordService>();
 
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
