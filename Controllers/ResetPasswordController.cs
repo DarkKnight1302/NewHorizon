@@ -32,6 +32,10 @@ namespace NewHorizon.Controllers
             {
                 return Unauthorized("Incorrect Username.");
             }
+            if (resetPasswordRequest.NewPassword == resetPasswordRequest.OldPassword)
+            {
+                return BadRequest("New password cannot be same as old password");
+            }
 
             if (!HashingUtil.VerifyPassword(resetPasswordRequest.OldPassword, user.HashedPassword, user.Salt))
             {
