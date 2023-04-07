@@ -13,5 +13,7 @@ namespace NewHorizon.Repositories.Interfaces
         public Task<bool> DeleteUser(string username);
 
         public Task<bool> UpdateUserPassword(User user, string password);
+
+        public Task<bool> UserExistForCorporateEmail(string corporateEmail);
     }
 }

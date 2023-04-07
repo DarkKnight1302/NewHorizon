@@ -4,6 +4,7 @@
     using Microsoft.AspNetCore.Mvc;
     using NewHorizon.Constants;
     using NewHorizon.Models.ColleagueCastleModels;
+    using NewHorizon.Repositories.Interfaces;
     using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
     namespace OTPExample.Controllers
@@ -14,11 +15,13 @@
         {
             private readonly IOtpService otpService;
             private readonly ISignUpTokenService signUpTokenService;
+            private readonly IUserRepository userRepository;
 
-            public OTPController(IOtpService otpService, ISignUpTokenService signUpTokenService)
+            public OTPController(IOtpService otpService, ISignUpTokenService signUpTokenService, IUserRepository userRepository)
             {
                 this.otpService = otpService;
                 this.signUpTokenService = signUpTokenService;
+                this.userRepository = userRepository;
             }
 
             [ApiKeyRequired]
@@ -37,6 +40,11 @@
                     return BadRequest("Invalid email address");
                 }
                 emailAddress = emailAddress.Trim().ToLower();
+                bool userAlreadyExist = await this.userRepository.UserExistForCorporateEmail(emailAddress).ConfigureAwait(false);
+                if (userAlreadyExist)
+                {
+                    return Unauthorized("User Already exist");
+                }
                 try
                 {
                     await this.otpService.GenerateAndSendOtpAsync(emailAddress).ConfigureAwait(false);
@@ -44,7 +52,7 @@
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest("Failed to send OTP: " + ex.Message);
+                    return Problem("Failed to send OTP: " + ex.Message);
                 }
             }
 

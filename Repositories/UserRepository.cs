@@ -39,7 +39,7 @@ namespace NewHorizon.Repositories
 
         public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId)
         {
-            username = username.Trim();
+            username = username.Trim().ToLower();
             Models.ColleagueCastleModels.DatabaseModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
             if (existingUser != null)
             {
@@ -61,7 +61,7 @@ namespace NewHorizon.Repositories
                 UserName = username,
                 Name = name,
                 PhoneNumber = phoneNumber,
-                Email = email,
+                Email = email.ToLower(),
                 Salt = passwordAndSalt.salt,
                 HashedPassword = passwordAndSalt.HashedPassword,
                 Company = companyName,
@@ -85,6 +85,7 @@ namespace NewHorizon.Repositories
 
         public async Task<Models.ColleagueCastleModels.DatabaseModels.User> GetUserByUserNameAsync(string username)
         {
+            username = username.ToLower();
             ItemResponse<Models.ColleagueCastleModels.DatabaseModels.User> user = null;
             try
             {
@@ -119,6 +120,13 @@ namespace NewHorizon.Repositories
                 return false;
             }
             return true;
+        }
+
+        public async Task<bool> UserExistForCorporateEmail(string corporateEmail)
+        {
+            corporateEmail = corporateEmail.Trim().ToLower();
+            string corporateEmailHash = HashingUtil.HashEmail(corporateEmail);
+            return await UserExistByCorporateEmailHash(corporateEmailHash).ConfigureAwait(false);
         }
 
         private async Task<bool> UserExistByCorporateEmailHash(string corporateEmailHash)
