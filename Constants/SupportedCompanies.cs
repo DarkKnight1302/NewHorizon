@@ -4,7 +4,7 @@
     {
         private static string[] SupportedCompanyEmailSuffix = { "@microsoft.com" };
 
-        public static bool IsValidCompany(string emailAddress)
+        public static bool IsCorporateEmail(string emailAddress)
         {
             if (string.IsNullOrEmpty(emailAddress)) 
             {

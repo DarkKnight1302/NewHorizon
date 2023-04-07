@@ -32,7 +32,7 @@
                 {
                     return BadRequest("Invalid Header value");
                 }
-                if (!SupportedCompanies.IsValidCompany(generateOtpRequest.EmailId))
+                if (!SupportedCompanies.IsCorporateEmail(generateOtpRequest.EmailId))
                 {
                     return BadRequest("Invalid email address");
                 }
@@ -54,7 +54,7 @@
             {
                 string emailAddress = validateOtpRequest.EmailId;
                 int otp = validateOtpRequest.Otp;
-                if (string.IsNullOrEmpty(emailAddress) || !SupportedCompanies.IsValidCompany(emailAddress))
+                if (string.IsNullOrEmpty(emailAddress) || !SupportedCompanies.IsCorporateEmail(emailAddress))
                 {
                     return BadRequest("Invalid email Address");
                 }

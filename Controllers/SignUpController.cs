@@ -33,20 +33,28 @@ namespace NewHorizon.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (string.IsNullOrEmpty(request.PreSignUpToken) && !Regex.IsMatch(request.Username, @"^[a-zA-Z0-9]+$"))
+            if (request.Username != request.EmailId)
             {
-                ModelState.AddModelError("Username", "Username can only contain letters and numbers.");
+                ModelState.AddModelError("Username", "Invalid Username");
                 return BadRequest(ModelState);
             }
+
             if (!string.IsNullOrEmpty(request.PhoneNumber) && !Regex.IsMatch(request.PhoneNumber, @"^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"))
             {
                 ModelState.AddModelError("PhoneNumber", "Invalid Phone number");
                 return BadRequest(ModelState);
             }
-            if (!SupportedCompanies.IsValidCompany(request.CorporateEmailId))
+
+            if (!SupportedCompanies.IsCorporateEmail(request.CorporateEmailId))
             {
                 return BadRequest("Invalid Email Address");
             }
+
+            if (SupportedCompanies.IsCorporateEmail(request.EmailId))
+            {
+                return BadRequest("Invalid Personal Email Address");
+            }
+
             bool validToken = await this.signUpTokenService.VerifySignUpTokenAsync(request.SignUpToken, request.CorporateEmailId);
             if (!validToken)
             {
