@@ -8,30 +8,28 @@ namespace NewHorizon.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IMemoryCache _cache;
-        private readonly int _limit;
         private readonly TimeSpan _period;
-        private readonly List<string> RateLimitedApis = new List<string>()
+        private readonly Dictionary<string, int> RateLimitedApisPerMinRate = new Dictionary<string, int>()
         {
-            "/api/PlaceSuggestion",
-            "/api/OTP/generate-and-send",
-            "/api/Blob/Upload",
-            "/api/Interest/show-interest",
-            "/api/SignIn",
-            "/api/SignOut"
+            {"/api/PlaceSuggestion", 10},
+            { "/api/OTP/generate-and-send", 2 },
+            { "/api/Blob/Upload", 5 },
+            { "/api/Interest/show-interest", 5 },
+            { "/api/SignIn", 3 },
+            { "/api/SignOut", 3 }
         };
 
-        public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, int limit, TimeSpan period)
+        public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, TimeSpan period)
         {
             _next = next;
             _cache = cache;
-            _limit = limit;
             _period = period;
         }
 
         public async Task Invoke(HttpContext context)
         {
             bool skipRateLimiting = true;
-            if (RateLimitedApis.Where(api => context.Request.Path.StartsWithSegments(api)).Any())
+            if (RateLimitedApisPerMinRate.Keys.Where(api => context.Request.Path.StartsWithSegments(api)).Any())
             {
                 skipRateLimiting = false;
             }
@@ -41,6 +39,9 @@ namespace NewHorizon.Middleware
                 await _next(context);
                 return;
             }
+
+            string apiKey = RateLimitedApisPerMinRate.Keys.Where(api => context.Request.Path.StartsWithSegments(api)).First();
+            int limit = RateLimitedApisPerMinRate[apiKey];
 
             var key = context.Request.Headers["X-Api-Key"];
 
@@ -58,10 +59,10 @@ namespace NewHorizon.Middleware
                 return 0;
             });
 
-            if (counter >= _limit)
+            if (counter > limit)
             {
                 context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                await context.Response.WriteAsync($"API rate limit exceeded ({_limit} requests per {_period.TotalMinutes} seconds)");
+                await context.Response.WriteAsync($"API rate limit exceeded ({limit} requests per minute)");
                 return;
             }
 

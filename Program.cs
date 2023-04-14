@@ -97,7 +97,7 @@ app.UseCors(builder =>
            .AllowAnyHeader()
            .AllowCredentials();
 });
-app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()), 10, TimeSpan.FromMinutes(5));
+app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()), TimeSpan.FromMinutes(1));
 app.UseAuthentication();
 app.UseHttpsRedirection();
 
