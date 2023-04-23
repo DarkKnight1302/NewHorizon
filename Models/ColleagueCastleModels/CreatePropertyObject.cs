@@ -9,6 +9,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
         public string placeId { get; set; }
 
         public Location location { get; set; }
+
         public string city { get; set; }
 
         public string company { get; set; }

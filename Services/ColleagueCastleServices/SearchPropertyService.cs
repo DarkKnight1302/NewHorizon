@@ -38,12 +38,8 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 return (null, "Incorrect PlaceId");
             }
-            string cityName = CityNameUtil.GetCityNameFromPlaceDetails(placeDetails);
-            if (cityName == null)
-            {
-                return (null, "Please provide Specific Location");
-            }
-            IEnumerable<PropertyPostDetails> propertyPostDetailsList = await this.propertyPostRepository.GetAllPropertyPostDetailsAsync(cityName, user.Company).ConfigureAwait(false);
+            Location location = new Location(placeDetails.Geometry.Location.Latitude, placeDetails.Geometry.Location.Longitude);
+            IEnumerable<PropertyPostDetails> propertyPostDetailsList = await this.propertyPostRepository.GetAllPropertyPostDetailsAsync(location, user.Company, searchPropertyRequest.SearchRadiusInKm).ConfigureAwait(false);
 
             List<PropertyPostDetails> matchedProperties = new List<PropertyPostDetails>();
             foreach (var propertyPostDetail in propertyPostDetailsList)

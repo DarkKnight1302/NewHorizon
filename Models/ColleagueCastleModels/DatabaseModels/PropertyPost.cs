@@ -15,6 +15,8 @@ namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
 
         public string PlaceId { get; set; }
 
+        public Location Location { get; set; }
+
         public string City { get; set; }
 
         public string Company { get; set; }
@@ -26,11 +28,13 @@ namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
     {
         public Location(double latitude, double longitude)
         {
-            Latitude = latitude;
-            Longitude = longitude;
+            this.coordinates[0] = longitude;
+            this.coordinates[1] = latitude;
+            this.type = "Point";
         }
 
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public string type { get; set; }
+        
+        public double[] coordinates { get; set; } = new double[2];
     }
 }

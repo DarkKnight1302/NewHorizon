@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Spatial;
 using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Repositories.Interfaces;
@@ -27,6 +28,7 @@ namespace NewHorizon.Repositories
             {
                 Id = uniqueId,
                 Uid = uniqueId,
+                Location = createPropertyObject.location,
                 PlaceId = createPropertyObject.placeId,
                 Available = true,
                 City = createPropertyObject.city,
@@ -43,7 +45,6 @@ namespace NewHorizon.Repositories
                 Description = createPropertyObject.description,
                 FormattedAddress = createPropertyObject.FormattedAddress,
                 Images = createPropertyObject.Images,
-                Location = createPropertyObject.location,
                 MapUrl = createPropertyObject.MapUrl,
                 RentAmount = createPropertyObject.RentAmount,
                 TenantPreference = createPropertyObject.TenantPreference,
@@ -103,10 +104,11 @@ namespace NewHorizon.Repositories
             return propertyPostDetails;
         }
 
-        public async Task<IEnumerable<PropertyPostDetails>> GetAllPropertyPostDetailsAsync(string city, string company)
+        public async Task<IEnumerable<PropertyPostDetails>> GetAllPropertyPostDetailsAsync(Location location, string company, int radialDistance)
         {
-            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.City = @value1 and c.Company = @value2 and c.Available = @value3")
-            .WithParameter("@value1", city).WithParameter("@value2", company).WithParameter("@value3", true);
+            var center = new Point(location.coordinates[0], location.coordinates[1]);
+            QueryDefinition queryDefinition = new QueryDefinition($"SELECT * FROM c WHERE c.Company = @value2 and c.Available = @value3 and ST_DISTANCE(c.Location, @center) < @radius")
+            .WithParameter("@value2", company).WithParameter("@value3", true).WithParameter("@center", center).WithParameter("@radius", radialDistance * 1000);
 
             List<(string, PartitionKey)> propertyPostIds = new List<(string, PartitionKey)>();
 

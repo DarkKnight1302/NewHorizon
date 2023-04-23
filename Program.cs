@@ -59,7 +59,6 @@ builder.Services.AddSingleton<ICriteriaMatching, FlatTypeCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, FoodPreferenceCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, FurnishingTypeCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, PropertyTypeCriteriaMatching>();
-builder.Services.AddSingleton<ICriteriaMatching, RadiusCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, RentAmountCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, SmokingCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, TenantPreferenceCriteriaMatching>();
