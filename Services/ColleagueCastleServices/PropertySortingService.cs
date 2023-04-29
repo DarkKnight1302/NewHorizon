@@ -1,7 +1,5 @@
 ﻿using NewHorizon.Models.ColleagueCastleModels;
-using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
-using NewHorizon.Services.Interfaces;
 
 namespace NewHorizon.Services.ColleagueCastleServices
 {
@@ -14,17 +12,22 @@ namespace NewHorizon.Services.ColleagueCastleServices
             this.criteriaSortingServices = serviceProvider.GetServices<ICriteriaSorting>();
         }
 
-        public async Task SortProperties(IEnumerable<PropertyPostResponse> propertyPostDetails, SearchPropertyRequest searchPropertyRequest)
+        public async Task<List<PropertyPostResponse>> SortProperties(IEnumerable<PropertyPostResponse> propertyPostDetails, SearchPropertyRequest searchPropertyRequest)
         {
-            if (propertyPostDetails == null || !propertyPostDetails.Any()) 
+            if (propertyPostDetails == null) 
             {
-                return;
+                return null;
             }
             List<PropertyPostResponse> propertyPostResponseList = propertyPostDetails.ToList();
+            if (!propertyPostResponseList.Any())
+            {
+                return propertyPostResponseList;
+            }
             foreach(var SortingService in this.criteriaSortingServices)
             {
                 await SortingService.Sort(propertyPostResponseList, searchPropertyRequest).ConfigureAwait(false);
             }
+            return propertyPostResponseList;
         }
     }
 }

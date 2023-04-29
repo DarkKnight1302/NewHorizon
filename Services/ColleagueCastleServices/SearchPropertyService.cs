@@ -61,7 +61,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
             }
             await Task.WhenAll(matchingTasks).ConfigureAwait(false);
             IEnumerable<PropertyPostResponse> responseProperties = matchedProperties.Select<PropertyPostDetails, PropertyPostResponse>(x => new PropertyPostResponse { Id = x.Id, CreatorUserName = x.CreatorUserName, Description = x.Description, Drinking = x.Drinking, ExperienceRange = x.ExperienceRange, FlatType = x.FlatType, FoodPreference = x.FoodPreference, FormattedAddress = x.FormattedAddress, FurnishingType = x.FurnishingType, Images = x.Images, InterestIds = x.InterestIds, MapUrl = x.MapUrl, PropertyType = x.PropertyType, RentAmount = x.RentAmount, Smoking = x.Smoking, TenantPreference = x.TenantPreference, Title = x.Title, Views = x.Views, Location = x.Location });
-            await this.propertySortingService.SortProperties(responseProperties, searchPropertyRequest).ConfigureAwait(false);
+            responseProperties = await this.propertySortingService.SortProperties(responseProperties, searchPropertyRequest).ConfigureAwait(false);
             return (responseProperties, string.Empty);
         }
     }

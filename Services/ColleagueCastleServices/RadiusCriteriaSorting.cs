@@ -22,7 +22,16 @@ namespace NewHorizon.Services.ColleagueCastleServices
             double originLat = placeDetails.Geometry.Location.Latitude;
             double originLng = placeDetails.Geometry.Location.Longitude;
             var comparer = new RadialComparer(originLat, originLng);
-            propertyPostResponses.Sort(comparer);
+            if (propertyPostResponses.Count == 1)
+            {
+                var originCoordinate = new GeoCoordinate(originLat, originLng);
+                var XCoordindate = new GeoCoordinate(propertyPostResponses[0].Location.coordinates[1], propertyPostResponses[0].Location.coordinates[0]);
+                propertyPostResponses[0].RadialDistance = (int)originCoordinate.GetDistanceTo(XCoordindate);
+            }
+            else
+            {
+                propertyPostResponses.Sort(comparer);
+            }
         }
     }
 
@@ -40,8 +49,8 @@ namespace NewHorizon.Services.ColleagueCastleServices
             var YCoordindate = new GeoCoordinate(y.Location.coordinates[1], y.Location.coordinates[0]);
             var distanceX = originCoordinate.GetDistanceTo(XCoordindate);
             var distanceY = originCoordinate.GetDistanceTo(YCoordindate);
-            x.RadialDistance = (int)(distanceX / 1000);
-            y.RadialDistance = (int)(distanceY / 1000);
+            x.RadialDistance = (int)distanceX;
+            y.RadialDistance = (int)distanceY;
             return distanceX.CompareTo(distanceY);
         }
     }

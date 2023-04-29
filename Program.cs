@@ -62,7 +62,6 @@ builder.Services.AddSingleton<ICriteriaMatching, PropertyTypeCriteriaMatching>()
 builder.Services.AddSingleton<ICriteriaMatching, RentAmountCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, SmokingCriteriaMatching>();
 builder.Services.AddSingleton<ICriteriaMatching, TenantPreferenceCriteriaMatching>();
-builder.Services.AddSingleton<ICriteriaMatching, UsernameCriteriaMatching>();
 builder.Services.AddSingleton<IPropertySortingService, PropertySortingService>();
 builder.Services.AddSingleton<ICriteriaSorting, RadiusCriteriaSorting>();
 builder.Services.AddSingleton<IPropertyMatchingService, PropertyMatchingService>();
