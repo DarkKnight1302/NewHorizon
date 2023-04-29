@@ -10,7 +10,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
         {
             await Task.CompletedTask;
 
-            if (searchPropertyRequest.ExperienceInYears == 0
+            /*if (searchPropertyRequest.ExperienceInYears == 0
                 || propertyPostDetails.ExperienceRange == null
                 || propertyPostDetails.ExperienceRange.MaxExpYears == 0)
             {
@@ -21,8 +21,8 @@ namespace NewHorizon.Services.ColleagueCastleServices
             {
                 return true;
             }
-
-            return false;
+*/
+            return true;
         }
     }
 }

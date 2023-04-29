@@ -80,7 +80,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
         UnFurnished = 0,
         SemiFurnished = 1,
         FullyFurnished = 2,
-        Ignore
+        Ignore = 3,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -90,7 +90,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
         Men = 1,
         Women = 2,
         NoPreference = 3,
-        Ignore,
+        Ignore = 4,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -106,7 +106,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
     {
         Allowed = 0,
         NotAllowed = 1,
-        Ignore,
+        Ignore = 2,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -114,7 +114,7 @@ namespace NewHorizon.Models.ColleagueCastleModels
     {
         Allowed = 0,
         NotAllowed = 1,
-        Ignore,
+        Ignore = 2,
     }
 
     public class ExperienceRange

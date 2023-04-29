@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using NewHorizon.Controllers;
 using NewHorizon.Models.ColleagueCastleModels;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace NewHorizon.Middleware
 {
@@ -19,7 +21,7 @@ namespace NewHorizon.Middleware
             { "/api/SignOut", 3 }
         };
 
-        public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, TimeSpan period)
+        public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, TimeSpan period, ILogger<ApiKeyRateLimiterMiddleware> logger)
         {
             _next = next;
             _cache = cache;
@@ -36,7 +38,15 @@ namespace NewHorizon.Middleware
 
             if (skipRateLimiting)
             {
-                await _next(context);
+                try
+                {
+                    await _next(context);
+                } catch (Exception ex)
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsync("Something Went Wrong");
+                    Debug.WriteLine($"Exception : {ex.Message} : {ex.StackTrace}");
+                }
                 return;
             }
 
@@ -68,7 +78,16 @@ namespace NewHorizon.Middleware
 
             _cache.Set(key, counter + 1, _period);
 
-            await _next(context);
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                context.Response.StatusCode = 500;
+                await context.Response.WriteAsync("Something Went Wrong");
+                Debug.WriteLine($"Exception : {ex.Message} : {ex.StackTrace}");
+            }
         }
     }
 }
