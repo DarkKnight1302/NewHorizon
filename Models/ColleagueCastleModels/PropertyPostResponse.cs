@@ -1,15 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using Newtonsoft.Json;
 
-namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
+namespace NewHorizon.Models.ColleagueCastleModels
 {
-    public class PropertyPostDetails
+    public class PropertyPostResponse
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-
-        [JsonProperty(PropertyName = "uid")]
-        public string Uid { get; set; }
 
         public string Title { get; set; }
 
@@ -46,5 +44,7 @@ namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
         public List<string> InterestIds { get; set; }
 
         public Location Location { get; set; }
+
+        public int RadialDistance { get; set; }
     }
 }

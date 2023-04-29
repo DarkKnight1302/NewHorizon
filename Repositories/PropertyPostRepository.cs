@@ -55,6 +55,7 @@ namespace NewHorizon.Repositories
                 FlatType = createPropertyObject.FlatType,
                 Drinking = createPropertyObject.Drinking,
                 Smoking = createPropertyObject.Smoking,
+                Location = createPropertyObject.location,
             };
             await this.PropertyDetailsContainer.UpsertItemAsync(propertyPostDetails).ConfigureAwait(false);
             return uniqueId;

@@ -4,11 +4,11 @@ namespace NewHorizon.Models.ColleagueCastleModels
 {
     public class SearchPropertyResponse
     {
-        public SearchPropertyResponse(IReadOnlyList<PropertyPostDetails> propertyPostDetails) 
+        public SearchPropertyResponse(IEnumerable<PropertyPostResponse> propertyPostDetails) 
         {
             this.propertyPostDetails = propertyPostDetails;
         }
 
-        public IReadOnlyList<PropertyPostDetails> propertyPostDetails { get; set; }
+        public IEnumerable<PropertyPostResponse> propertyPostDetails { get; set; }
     }
 }
