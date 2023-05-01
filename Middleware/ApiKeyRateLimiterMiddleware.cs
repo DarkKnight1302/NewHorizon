@@ -14,11 +14,11 @@ namespace NewHorizon.Middleware
         private readonly Dictionary<string, int> RateLimitedApisPerMinRate = new Dictionary<string, int>()
         {
             {"/api/PlaceSuggestion", 10},
-            { "/api/OTP/generate-and-send", 2 },
+            { "/api/OTP/generate-and-send", 3 },
             { "/api/Blob/Upload", 5 },
             { "/api/Interest/show-interest", 5 },
-            { "/api/SignIn", 3 },
-            { "/api/SignOut", 3 }
+            { "/api/SignIn", 5 },
+            { "/api/SignOut", 5 }
         };
 
         public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, TimeSpan period, ILogger<ApiKeyRateLimiterMiddleware> logger)

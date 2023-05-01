@@ -25,6 +25,8 @@ namespace NewHorizon.Models.ColleagueCastleModels.DatabaseModels
 
         public string Company { get; set; }
 
+        public int ExperienceInYears { get; set; }
+
         public string CorporateEmailHash { get; set; }
 
         public DateTime CreatedAt { get; set; }

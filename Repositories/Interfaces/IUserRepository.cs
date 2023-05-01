@@ -6,7 +6,7 @@ namespace NewHorizon.Repositories.Interfaces
     {
         public Task<User> GetUserByUserNameAsync(string username);
 
-        public Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId);
+        public Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId, int experience);
 
         public Task<bool> CreateAdminUser(string username, string password);
 

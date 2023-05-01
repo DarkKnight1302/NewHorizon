@@ -37,7 +37,7 @@ namespace NewHorizon.Repositories
             return true;
         }
 
-        public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId)
+        public async Task<bool> CreateUserIfNotExist(string username, string password, string name, string phoneNumber, string email, string corporateEmailId, int experience)
         {
             username = username.Trim().ToLower();
             Models.ColleagueCastleModels.DatabaseModels.User existingUser = await GetUserByUserNameAsync(username).ConfigureAwait(false);
@@ -66,6 +66,7 @@ namespace NewHorizon.Repositories
                 HashedPassword = passwordAndSalt.HashedPassword,
                 Company = companyName,
                 IsAdmin = false,
+                ExperienceInYears = experience,
                 CorporateEmailHash = corporateEmailHash,
                 CreatedAt = DateTime.UtcNow
             };

@@ -69,7 +69,7 @@ namespace NewHorizon.Controllers
                 }
                 request.Username = request.Username.ToLower();
             }
-            bool success = await this.userRepository.CreateUserIfNotExist(username: request.Username, password: request.Password, name: request.Name, phoneNumber: request.PhoneNumber, email: request.EmailId, corporateEmailId: request.CorporateEmailId);
+            bool success = await this.userRepository.CreateUserIfNotExist(username: request.Username, password: request.Password, name: request.Name, phoneNumber: request.PhoneNumber, email: request.EmailId, corporateEmailId: request.CorporateEmailId, experience: request.ExperienceInYears);
             if (!success)
             {
                 return BadRequest("User already exist");
