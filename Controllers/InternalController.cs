@@ -100,16 +100,30 @@ namespace NewHorizon.Controllers
         [HttpGet("create-sample-properties")]
         public async Task<IActionResult> CreateSampleProperties()
         {
-            List<string> placeIds = new List<string> { "ChIJ8bRtEy6TyzsRj4xSSg6OD-c", "ChIJJalC5VbtyzsRWGBN1U5lluw", "ChIJtY8ZERWTyzsRWF4w74xJYR0", "ChIJYw_sufTvDDkRybApcpA1jKs", "ChIJFbC3X1IYDTkRozCEBLvWPWg", "ChIJ4Vadca0VrjsRq0D94abv8t0", "ChIJV_D8ED_lDDkRKSIGsmkkgZA", "ChIJEUdt5i-XyzsRE1OhHGknLX8", "ChIJw1QJcoeRyzsRzf8xaaKUR0w", "ChIJa9jKxW6TyzsR9YpY6_WkRhU", "ChIJF_CDDv0VrjsRZSYEiJYX8QE", "ChIJO6SQa68_rjsRDezet6io9KU" };
+            
             string secretToken = HttpContext.Request.Headers["X-Api-Key"];
             if (secretToken == null || string.IsNullOrEmpty(secretToken))
             {
                 return BadRequest("Invalid secret token");
             }
+            List<string> placeIds = new List<string>();
             string sessionToken = await this.sessionTokenManager.GenerateSessionToken("robin2");
+            List<string> cities = new List<string>() { "Hyderabad, India", "Bangalore, India", "Delhi, India", "Noida, India", "Mumbai, India", "Pune, India", "Gurugram, India", "Indore, India", "Jaipur, India", "Ahmedabad, India", "Chennai, India" };
+            int placeIdCount = 0;
             if (secretToken == this.secretService.GetSecretValue("INTERNAL_SECRET_TOKEN"))
             {
-                for (int i = 0; i < 10; i++)
+                foreach (var c in cities)
+                {
+                    var placePredictions = await this.googlePlaceService.GetSuggestionsAsync($"housing Societies in {c}", sessionToken);
+                    if (placePredictions != null)
+                    {
+                        foreach (var placePrediction in placePredictions)
+                        {
+                            placeIds.Add(placePrediction.PlaceId);
+                        }
+                    }
+                }
+                for (int i = 0; i < 500; i++)
                 {
                     CreatePropertyPostRequest createPropertyPostRequest = new CreatePropertyPostRequest();
                     createPropertyPostRequest.Title = $"Test_{i}";
@@ -122,15 +136,18 @@ namespace NewHorizon.Controllers
                     createPropertyPostRequest.FurnishingType = (FurnishingType)this.random.Next(0, 3);
                     createPropertyPostRequest.Drinking = (Drinking)this.random.Next(0, 2);
                     createPropertyPostRequest.FlatType = (FlatType)this.random.Next(0, 6);
-                    int randomPlace = this.random.Next(0, placeIds.Count);
-                    createPropertyPostRequest.PlaceId = placeIds[randomPlace];
+                    createPropertyPostRequest.PlaceId = placeIds[placeIdCount++];
+                    if (placeIdCount >= placeIds.Count)
+                    {
+                        break;
+                    }
                     createPropertyPostRequest.RentAmount = this.random.Next(5000, 50000);
                     createPropertyPostRequest.Smoking = (Smoking)this.random.Next(0, 2);
                     createPropertyPostRequest.TenantPreference = (TenantPreference)this.random.Next(0, 4);
                     string id = await this.propertyPostService.CreatePropertyPostAsync(createPropertyPostRequest);
                     if (string.IsNullOrEmpty(id))
                     {
-                        Debug.WriteLine($"Cannot create User for PlaceId {placeIds[randomPlace]}");
+                        Debug.WriteLine($"Cannot create User for PlaceId {placeIds[placeIdCount]}");
                     }
                 }
                 return Ok("Successfully created Users");
