@@ -17,6 +17,8 @@ using NewHorizon.Middleware;
 using Microsoft.Extensions.Options;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using NewHorizon.Services.InterviewerCopilotServices.Interfaces;
+using NewHorizon.Services.InterviewerCopilotServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +73,7 @@ builder.Services.AddSingleton<IMailingService, MailingService>();
 builder.Services.AddSingleton<IInterestService, InterestService>();
 builder.Services.AddSingleton<IUserInterestRepository, UserInterestRepository>();
 builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
+builder.Services.AddSingleton<IOpenAIService, OpenAIService>();
 builder.Services.AddSingleton<IGenerateAndSendPasswordService, GenerateAndSendPasswordService>();
 
 builder.Services.AddAuthentication()
