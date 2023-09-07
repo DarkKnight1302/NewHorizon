@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewHorizon.Models.ColleagueCastleModels;
-using NewHorizon.Models.ColleagueCastleModels.InterviewCopilotModels;
+using NewHorizon.Models.InterviewCopilotModels;
 using NewHorizon.Services.InterviewerCopilotServices.Interfaces;
 
 namespace NewHorizon.Controllers.InterviewCopilotControllers

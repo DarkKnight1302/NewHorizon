@@ -1,4 +1,4 @@
-﻿namespace NewHorizon.Models.ColleagueCastleModels.InterviewCopilotModels
+﻿namespace NewHorizon.Models.InterviewCopilotModels
 {
     public class GenerateQuestion
     {
