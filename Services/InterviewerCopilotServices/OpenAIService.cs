@@ -22,7 +22,7 @@ namespace NewHorizon.Services.InterviewerCopilotServices
             this.httpClient.DefaultRequestHeaders.Add("api-key", openAIKey);
             this.httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAIKey}");
             this.openAIClient = new OpenAIClient(new Uri(openAIUrl), new AzureKeyCredential(openAIKey));
-            this.requestThresholdPerDay = new RequestThresholdPerDay(1);
+            this.requestThresholdPerDay = new RequestThresholdPerDay(10000);
         }
 
         public async Task<string> GenerateQuestionAsync(string prompt, string systemContext, List<string> previouslyAskedQuestion, float temperature = 0.5f)

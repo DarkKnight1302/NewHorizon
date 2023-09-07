@@ -18,7 +18,9 @@ namespace NewHorizon.Middleware
             { "/api/Blob/Upload", 5 },
             { "/api/Interest/show-interest", 5 },
             { "/api/SignIn", 5 },
-            { "/api/SignOut", 5 }
+            { "/api/SignOut", 5 },
+            { "/api/OpenAI/generate-question", 100 },
+            { "/api/OpenAI/analyze-solution", 100 },
         };
 
         public ApiKeyRateLimiterMiddleware(RequestDelegate next, IMemoryCache cache, TimeSpan period, ILogger<ApiKeyRateLimiterMiddleware> logger)
