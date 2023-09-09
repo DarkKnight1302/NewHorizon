@@ -14,6 +14,7 @@ public class BlobController : ControllerBase
         this.sessionTokenManager = sessionTokenManager;
     }
 
+    [RequireHttps]
     [ApiKeyRequired]
     [HttpPost("Upload")]
     public async Task<IActionResult> Upload(IFormFile file)

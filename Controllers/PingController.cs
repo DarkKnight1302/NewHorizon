@@ -17,6 +17,7 @@ public class PingController : ControllerBase
         _logger = logger;
     }
 
+    [RequireHttps]
     [ApiExplorerSettings(GroupName = "v1")]
     [HttpGet(Name = "ping")]
     public bool Get() 

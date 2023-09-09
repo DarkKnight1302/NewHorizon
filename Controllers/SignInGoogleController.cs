@@ -14,6 +14,7 @@ namespace NewHorizon.Controllers
             this.googleSignInService = googleSignInService;
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> SignIn([FromBody] GoogleSignInRequest request)

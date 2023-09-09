@@ -18,6 +18,7 @@ namespace NewHorizon.Controllers
             this.searchPropertyService = searchPropertyService;
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> SearchPropertyPost([FromBody] SearchPropertyRequest searchPropertyRequest)

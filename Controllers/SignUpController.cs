@@ -24,6 +24,7 @@ namespace NewHorizon.Controllers
             this.sessionTokenManager = sessionTokenManager;
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)

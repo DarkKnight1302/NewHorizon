@@ -16,6 +16,7 @@ public class TrafficDurationController : ControllerBase
         this.trafficDataStorageService = trafficDataStorageService;
     }
 
+    [RequireHttps]
     [ApiExplorerSettings(GroupName = "v2")]
     [HttpGet(Name = "GetTrafficData")]
     public async Task<Dictionary<string, int>> Get(string fromPlaceId, string toPlaceId, int dayOfWeek) 

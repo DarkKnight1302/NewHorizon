@@ -14,6 +14,7 @@ namespace NewHorizon.Controllers.InterviewCopilotControllers
             this.openAIService = openAIService;
         }
 
+        [RequireHttps]
         [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v2")]
         [HttpPost("generate-question")]
@@ -29,6 +30,7 @@ namespace NewHorizon.Controllers.InterviewCopilotControllers
             return Ok(generatedQuestion);
         }
 
+        [RequireHttps]
         [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v2")]
         [HttpPost("analyze-solution")]

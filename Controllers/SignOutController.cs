@@ -16,6 +16,7 @@ namespace NewHorizon.Controllers
             this.sessionTokenManager = sessionTokenManager;
         }
 
+        [RequireHttps]
         [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]

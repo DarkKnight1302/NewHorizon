@@ -19,6 +19,7 @@ public class UsernameController : ControllerBase
         this.userRepository = userRepository;
     }
 
+    [RequireHttps]
     [ApiExplorerSettings(GroupName = "v1")]
     [HttpGet("username-availability")]
     public async Task<IActionResult> Get(string username)

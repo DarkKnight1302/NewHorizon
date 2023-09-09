@@ -15,6 +15,7 @@ public class InterestController : ControllerBase
         this.interestService = interestService;
     }
 
+    [RequireHttps]
     [ApiKeyRequired]
     [HttpPost("show-interest")]
     public async Task<IActionResult> ShowInterest([FromBody] ShowInterestRequest showInterestRequest)

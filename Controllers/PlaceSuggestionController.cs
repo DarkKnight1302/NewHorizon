@@ -23,6 +23,7 @@ public class PlaceSuggestionController : ControllerBase
         this.sessionTokenManager = sessionTokenManager;
     }
 
+    [RequireHttps]
     [ApiKeyRequired]
     [ApiExplorerSettings(GroupName = "v1")]
     [HttpGet(Name = "GetPlaceSugggestion")]

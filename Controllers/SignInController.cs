@@ -22,6 +22,7 @@ namespace NewHorizon.Controllers
             this._memoryCache = memoryCache;
         }
 
+        [RequireHttps]
         [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]

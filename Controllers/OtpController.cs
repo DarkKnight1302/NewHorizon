@@ -24,6 +24,7 @@
                 this.userRepository = userRepository;
             }
 
+            [RequireHttps]
             [ApiKeyRequired]
             [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("generate-and-send")]
@@ -56,6 +57,7 @@
                 }
             }
 
+            [RequireHttps]
             [ApiExplorerSettings(GroupName = "v1")]
             [HttpPost("validate")]
             public async Task<IActionResult> ValidateOTP([FromBody] ValidateOtpRequest validateOtpRequest)

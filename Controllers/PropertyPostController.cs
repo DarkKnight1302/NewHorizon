@@ -16,6 +16,7 @@ namespace NewHorizon.Controllers
             this.propertyPostService = propertyPostService;
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost]
         public async Task<IActionResult> CreatePropertyPost([FromBody] CreatePropertyPostRequest createPropertyPostRequest)

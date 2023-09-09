@@ -23,6 +23,7 @@ namespace NewHorizon.Controllers
             this._userRepository = userRepository;
         }
 
+        [RequireHttps]
         [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpGet("get-userdetails")]

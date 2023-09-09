@@ -17,6 +17,7 @@ namespace NewHorizon.Controllers
             this.sessionTokenManager = sessionTokenManager;
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost("get-post")]
         public async Task<IActionResult> GetYourPost([FromBody] GetYourPostRequest GetYourPostRequest)
@@ -36,6 +37,7 @@ namespace NewHorizon.Controllers
             return Ok(new YourPostResponse(propertyPostDetails));
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpPost("delete-post")]
         public async Task<IActionResult> DeleteYourPost([FromBody] DeleteYourPostRequest deleteYourPostRequest)

@@ -13,6 +13,7 @@ namespace NewHorizon.Controllers
             this.generateAndSendPasswordService = generateAndSendPasswordService;
         }
 
+        [RequireHttps]
         [ApiKeyRequired]
         [ApiExplorerSettings(GroupName = "v1")]
         [HttpGet("generate-send-password")]

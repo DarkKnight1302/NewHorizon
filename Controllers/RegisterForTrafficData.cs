@@ -14,6 +14,7 @@ namespace NewHorizon.Controllers
             this.routeRegistrationHandler = routeRegistrationHandler;
         }
 
+        [RequireHttps]
         [ApiExplorerSettings(GroupName = "v2")]
         [HttpGet(Name = "RegisterForTrafficData")]
         public async Task<IActionResult> Get(string fromPlaceId, string toPlaceId, DateTimeOffset startTimeUtc, DateTimeOffset endTimeUtc, string region)
