@@ -75,6 +75,7 @@ builder.Services.AddSingleton<IUserInterestRepository, UserInterestRepository>()
 builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
 builder.Services.AddSingleton<IOpenAIService, OpenAIService>();
 builder.Services.AddSingleton<IGenerateAndSendPasswordService, GenerateAndSendPasswordService>();
+builder.Services.AddSingleton<IBusLocationRepository, BusLocationRepository>();
 
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
