@@ -16,7 +16,7 @@ namespace NewHorizon.Controllers
         }
 
         [ApiExplorerSettings(GroupName = "v2")]
-        [HttpGet(Name = "GetBusLocation")]
+        [HttpGet("GetBusLocation")]
         public async Task<IActionResult> GetBusLocation(string busId)
         {
             if (string.IsNullOrWhiteSpace(busId)) 
@@ -33,7 +33,7 @@ namespace NewHorizon.Controllers
         }
 
         [ApiExplorerSettings(GroupName = "v2")]
-        [HttpPost(Name = "SaveBusLocation")]
+        [HttpPost("SaveBusLocation")]
         public async Task<IActionResult> SaveBusLocation(BusLocationRequest busLocationRequest)
         {
             if (busLocationRequest == null || string.IsNullOrEmpty(busLocationRequest.BusId))
