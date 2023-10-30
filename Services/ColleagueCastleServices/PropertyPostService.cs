@@ -15,17 +15,20 @@ namespace NewHorizon.Services.ColleagueCastleServices
         private readonly IUserRepository userRepository;
         private readonly ISessionTokenManager sessionTokenManager;
         private readonly IPropertyPostRepository propertyPostRepository;
+        private readonly IUserInterestRepository userInterestRepository;
 
         public PropertyPostService(
             IGooglePlaceService googlePlaceService,
             IUserRepository userRepository,
             ISessionTokenManager sessionTokenManager,
-            IPropertyPostRepository propertyPostRepository)
+            IPropertyPostRepository propertyPostRepository,
+            IUserInterestRepository userInterestRepository)
         {
             this.googlePlaceService = googlePlaceService;
             this.userRepository = userRepository;
             this.sessionTokenManager = sessionTokenManager;
             this.propertyPostRepository = propertyPostRepository;
+            this.userInterestRepository = userInterestRepository;
         }
 
         public async Task<string> CreatePropertyPostAsync(CreatePropertyPostRequest createPropertyPostRequest)
@@ -88,6 +91,10 @@ namespace NewHorizon.Services.ColleagueCastleServices
                 if (propertyPost != null)
                 {
                     bool success = await this.propertyPostRepository.DeletePropertyPostAsync(propertyPost);
+                    if (success)
+                    {
+                        await this.userInterestRepository.DeleteUserInterestAsync(propertyPostId).ConfigureAwait(false);
+                    }
                     return success;
                 }
             }

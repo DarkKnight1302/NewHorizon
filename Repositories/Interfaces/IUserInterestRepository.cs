@@ -6,5 +6,7 @@
 
         public Task<bool> AddInterestForPostAsync(string postId, string userId);
 
+        public Task DeleteUserInterestAsync(string postId);
+
     }
 }

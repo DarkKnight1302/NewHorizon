@@ -51,6 +51,11 @@ namespace NewHorizon.Repositories
             return true;
         }
 
+        public async Task DeleteUserInterestAsync(string postId)
+        {
+            await this._container.DeleteItemAsync<UserInterests>(postId, new PartitionKey(postId)).ConfigureAwait(false);
+        }
+
         public async Task<List<string>> GetInterestedUsersAsync(string postId)
         {
             ItemResponse<UserInterests> itemResponse = null;
