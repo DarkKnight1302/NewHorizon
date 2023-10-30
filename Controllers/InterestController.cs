@@ -40,6 +40,7 @@ public class InterestController : ControllerBase
     [HttpGet("find-interested")]
     public async Task<IActionResult> FindInterestedProperties(string UserId)
     {
+        UserId = UserId.Trim().ToLower();
         var sessionId = HttpContext.Request.Headers["X-Api-Key"];
         if (string.IsNullOrEmpty(sessionId))
         {
