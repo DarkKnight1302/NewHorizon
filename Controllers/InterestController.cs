@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewHorizon.Models.ColleagueCastleModels;
 using NewHorizon.Models.ColleagueCastleModels.DatabaseModels;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 
@@ -32,5 +33,28 @@ public class InterestController : ControllerBase
         }
         this.interestService.ShowInterestInPost(showInterestRequest.PostId, showInterestRequest.UserId);
         return Ok("Interest Registered in Property");
+    }
+
+    [RequireHttps]
+    [ApiKeyRequired]
+    [HttpGet("find-interested")]
+    public async Task<IActionResult> FindInterestedProperties(string UserId)
+    {
+        var sessionId = HttpContext.Request.Headers["X-Api-Key"];
+        if (string.IsNullOrEmpty(sessionId))
+        {
+            return BadRequest("Invalid Session Token");
+        }
+        bool valid = await this.sessionTokenManager.ValidateSessionToken(UserId, sessionId).ConfigureAwait(false);
+        if (!valid)
+        {
+            return BadRequest("Invalid token");
+        }
+        IEnumerable<PropertyPostResponse> propertyPostResponses = await this.interestService.FindShortlistedProperties(UserId);
+        if (propertyPostResponses == null)
+        {
+            return NotFound();
+        }
+        return Ok(new SearchPropertyResponse(propertyPostResponses));
     }
 }

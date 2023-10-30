@@ -11,6 +11,8 @@ namespace NewHorizon.Services.ColleagueCastleServices.Interfaces
 
         public Task<PropertyPostDetails> GetPropertyPostAsync(string propertyPostId);
 
+        public Task<IEnumerable<PropertyPostDetails>> GetPropertyPostsAsync(List<string> propertyPostId);
+
         public Task<IEnumerable<PropertyPostDetails>> GetUserPropertyPostsAsync(string userId);
 
         public Task<bool> DeletePropertyPostAsync(string propertyPostId, string userId);

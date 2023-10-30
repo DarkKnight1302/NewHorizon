@@ -96,7 +96,12 @@ namespace NewHorizon.Services.ColleagueCastleServices
 
         public async Task<PropertyPostDetails> GetPropertyPostAsync(string propertyPostId)
         {
-            return await this.propertyPostRepository.GetPropertryPostDetailsById(propertyPostId).ConfigureAwait(false);
+            return await this.propertyPostRepository.GetPropertyPostDetailsById(propertyPostId).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<PropertyPostDetails>> GetPropertyPostsAsync(List<string> propertyPostId)
+        {
+            return await this.propertyPostRepository.GetPropertyPostDetailsByIds(propertyPostId);
         }
 
         public async Task<IEnumerable<PropertyPostDetails>> GetUserPropertyPostsAsync(string userId)

@@ -137,7 +137,7 @@ namespace NewHorizon.Repositories
             return Enumerable.Empty<PropertyPostDetails>();
         }
 
-        public async Task<PropertyPostDetails> GetPropertryPostDetailsById(string postId)
+        public async Task<PropertyPostDetails> GetPropertyPostDetailsById(string postId)
         {
             var itemResponse = await this.PropertyDetailsContainer.ReadItemAsync<PropertyPostDetails>(postId, new PartitionKey(postId)).ConfigureAwait(false);
             if (itemResponse.StatusCode == System.Net.HttpStatusCode.OK)
@@ -145,6 +145,24 @@ namespace NewHorizon.Repositories
                 return itemResponse.Resource;
             }
             return null;
+        }
+
+        public async Task<IEnumerable<PropertyPostDetails>> GetPropertyPostDetailsByIds(List<string> postIds)
+        {
+            List<(string, PartitionKey)> propertyPostIds = new List<(string, PartitionKey)>();
+            postIds.ForEach(x =>
+            {
+                propertyPostIds.Add((x, new PartitionKey(x)));
+            });
+
+            try
+            {
+                FeedResponse<PropertyPostDetails> itemResponse = await this.PropertyDetailsContainer.ReadManyItemsAsync<PropertyPostDetails>(propertyPostIds.AsReadOnly());
+                return itemResponse.AsEnumerable();
+            } catch(CosmosException)
+            {
+                return null;
+            }
         }
 
         private string GetUniqueIdForPost(string username, string placeId)
