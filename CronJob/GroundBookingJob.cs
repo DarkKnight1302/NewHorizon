@@ -1,5 +1,7 @@
 ﻿using GoogleApi.Entities.Maps.DistanceMatrix.Response;
 using NewHorizon.Models;
+using NewHorizon.Services.ColleagueCastleServices.Interfaces;
+using Newtonsoft.Json;
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Web;
@@ -9,6 +11,7 @@ namespace NewHorizon.CronJob
     public class GroundBookingJob : IGroundBookingJob
     {
         private const double IntervalInMilliseconds = 6 * 60 * 60 * 1000;
+        private readonly IMailingService _mailingService;
         private readonly List<string> grounds = new List<string>()
         {
             "srrc1",
@@ -58,12 +61,15 @@ namespace NewHorizon.CronJob
             "ballebaaz-maidan"
         };
 
-        public GroundBookingJob() {
+        public GroundBookingJob(IMailingService mailingService)
+        {
+            _mailingService = mailingService;
             System.Timers.Timer t = new System.Timers.Timer();
             t.AutoReset = true;
             t.Interval = IntervalInMilliseconds;
             t.Enabled = true;
             t.Elapsed += T_Elapsed;
+            Task.Run(() => Run());
         }
 
         private void T_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
@@ -87,45 +93,74 @@ namespace NewHorizon.CronJob
                         continue;
                     }
                     string formatedDate = dateTime.ToString("yyyy-MM-dd");
-
-                    // Set up the headers
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
-                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("br"));
-                    client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US", 0.9));
-                    client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-IN", 0.8));
-                    client.DefaultRequestHeaders.Add("Origin", "https://www.gwsportsapp.in");
-                    client.DefaultRequestHeaders.Referrer = new Uri("https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/scg-cricket-ground");
-                    client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
-                    client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
-                    client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
-                    client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Microsoft Edge\";v=\"126\"");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua-mobile", "?0");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\"Windows\"");
-
-                    // Create the form URL-encoded content
-                    string value = "{\"l\":\"hyderabad\",\"g\":\"srrc1\",\"s\":\"cricket\",\"d\":\"2024-07-21\"}";
-                    string encoded = HttpUtility.UrlEncode(value);
-                    var content = new StringContent($"data={encoded}");
-                    content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded") { CharSet = "UTF-8" };
-
-                    // Send the POST request
-                    HttpResponseMessage response = await client.PostAsync(url, content);
-
-                    if (!response.IsSuccessStatusCode)
+                    foreach (string grnd in grounds)
                     {
-                        continue;
-                    }
-                    // Read the response content
-                    using (Stream responseStream = await response.Content.ReadAsStreamAsync())
-                    using (GZipStream decompressionStream = new GZipStream(responseStream, CompressionMode.Decompress))
-                    using (StreamReader reader = new StreamReader(decompressionStream))
-                    {
-                        string responseString = await reader.ReadToEndAsync();
-                        // Output the response
-                        Console.WriteLine(responseString);
+                        // Set up the headers
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("br"));
+                        client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US", 0.9));
+                        client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-IN", 0.8));
+                        client.DefaultRequestHeaders.Add("Origin", "https://www.gwsportsapp.in");
+                        client.DefaultRequestHeaders.Referrer = new Uri($"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}");
+                        client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+                        client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+                        client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+                        client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+                        client.DefaultRequestHeaders.Add("sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Microsoft Edge\";v=\"126\"");
+                        client.DefaultRequestHeaders.Add("sec-ch-ua-mobile", "?0");
+                        client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\"Windows\"");
+
+                        // Create the form URL-encoded content
+                        // string value = "{\"l\":\"hyderabad\",\"g\":\"srrc1\",\"s\":\"cricket\",\"d\":\"2024-07-21\"}";
+                        var obj = new { l = "hyderabad", g = grnd, s = "cricket", d = formatedDate };
+                        string value = JsonConvert.SerializeObject(obj);
+                        string encoded = HttpUtility.UrlEncode(value);
+                        var content = new StringContent($"data={encoded}");
+                        content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded") { CharSet = "UTF-8" };
+
+                        // Send the POST request
+                        HttpResponseMessage response = await client.PostAsync(url, content);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            continue;
+                        }
+                        // Read the response content
+                        try
+                        {
+                            using (Stream responseStream = await response.Content.ReadAsStreamAsync())
+                            using (GZipStream decompressionStream = new GZipStream(responseStream, CompressionMode.Decompress))
+                            using (StreamReader reader = new StreamReader(decompressionStream))
+                            {
+                                string responseString = await reader.ReadToEndAsync();
+                                // Output the response
+                                Console.WriteLine(responseString);
+                                GroundSlots groundSlots = JsonConvert.DeserializeObject<GroundSlots>(responseString);
+                                if (groundSlots != null && groundSlots.Status.Equals("success") && groundSlots.Data != null)
+                                {
+                                    foreach (var groundSlot in groundSlots.Data)
+                                    {
+                                        if (groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 400 && groundSlot.SlotTimeHalf <= 1200)
+                                        {
+                                            string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
+                                            // send mail.
+                                            _ = Task.Run(() =>
+                                            {
+                                                _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
+                                            });
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            // do nothing.
+                            Console.WriteLine("Exception");
+                        }
                     }
                 }
 

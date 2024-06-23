@@ -20,10 +20,10 @@
     public class Datum
     {
         [JsonProperty("ground_sports_court_id")]
-        public int GroundSportsCourtId { get; set; }
+        public int? GroundSportsCourtId { get; set; }
 
         [JsonProperty("ground_sports_id")]
-        public int GroundSportsId { get; set; }
+        public int? GroundSportsId { get; set; }
 
         [JsonProperty("slot_name")]
         public string SlotName { get; set; }
@@ -32,7 +32,7 @@
         public string CourtTitle { get; set; }
 
         [JsonProperty("court_no")]
-        public int CourtNo { get; set; }
+        public int? CourtNo { get; set; }
 
         [JsonProperty("court_text")]
         public string CourtText { get; set; }
@@ -44,7 +44,7 @@
         public string SlotEndTime { get; set; }
 
         [JsonProperty("slot_occupancy")]
-        public int SlotOccupancy { get; set; }
+        public int? SlotOccupancy { get; set; }
 
         [JsonProperty("is_full_day_slot")]
         public bool IsFullDaySlot { get; set; }
@@ -53,7 +53,7 @@
         public string SlotDispText { get; set; }
 
         [JsonProperty("booking_id")]
-        public int BookingId { get; set; }
+        public int? BookingId { get; set; }
 
         [JsonProperty("court_name")]
         public string CourtName { get; set; }
@@ -62,7 +62,7 @@
         public string SportsType { get; set; }
 
         [JsonProperty("increment_by")]
-        public int IncrementBy { get; set; }
+        public int? IncrementBy { get; set; }
 
         [JsonProperty("occupied")]
         public string Occupied { get; set; }
