@@ -76,6 +76,7 @@ builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
 builder.Services.AddSingleton<IOpenAIService, OpenAIService>();
 builder.Services.AddSingleton<IGenerateAndSendPasswordService, GenerateAndSendPasswordService>();
 builder.Services.AddSingleton<IShortListedPropertyRepository, ShotlistedPropertyRepository>();
+builder.Services.AddSingleton<IGroundBookingJob, GroundBookingJob>();
 
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
@@ -87,6 +88,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 var app = builder.Build();
+app.Services.GetRequiredService<IGroundBookingJob>();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
