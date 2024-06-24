@@ -106,6 +106,10 @@ namespace NewHorizon.CronJob
                         {
                             AddedGrounds[formatedDate] = new List<string>();
                         }
+                        if (AddedGrounds[formatedDate].Contains(grnd))
+                        {
+                            continue;
+                        }
                         if (AddedGrounds[formatedDate].Count >= 3)
                         {
                             break;
