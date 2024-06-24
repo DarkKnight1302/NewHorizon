@@ -22,11 +22,9 @@ namespace NewHorizon.CronJob
             "urban-technology-farms-pt-ltd", // 9km
             "svcg-kokapet", // 9 km
             "vbcc-1-vattinagulapally", // 9km
-            "dcc-sports-arena", // 9.5 km
             "playsfit-cricket-ground-vattinagulapally", // 9.5 km
             "swaroop-cricket-ground-kokapet", // 11 km
             "samruddhi-cricket-ground", //12 km
-            "msk-cricket-ground-vattinagulapally", // 14 km
             "the-pavilion-cricket-stadium", // 14 km
             "vscg-cricket-ground", // 14 km
             "thrill-cricket-ground-1-appa-junction", // 15 km
@@ -44,6 +42,7 @@ namespace NewHorizon.CronJob
             "suresh-cricket-ground", // 22 km
             "sz-cricket-ground", // 22 km
             "beside-arun-gardens,chilukuru-balaji-temple-road,hyderabad-500075", // 22 km
+            "msk-cricket-ground-vattinagulapally", // 14 km
             "olympus-zeus", // 25 km
             "mps-cricket-ground-shamshabad", // 25km
             "sr-cricket-ground", //25 km
@@ -58,6 +57,7 @@ namespace NewHorizon.CronJob
             "rao's-cricket-ground", // 27km
             "vvr2-cricket-ground", //22km
             "reet-cricket-club", // 30 km
+            "dcc-sports-arena", // 9.5 km
             "albatross-cricket-ground", // 30 km
             "smr-cricket-ground", //30 km
             "golconda-cricket-club", // 30 km
