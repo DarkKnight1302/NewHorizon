@@ -158,13 +158,14 @@ namespace NewHorizon.CronJob
                                     foreach (var groundSlot in groundSlots.Data)
                                     {
                                         bool slotFound = false;
-                                        if (groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
+
+                                        if (dateTime.DayOfWeek != DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
                                         {
                                             string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
 
                                             // send mail.
                                             _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
-                                            
+
                                             AddedGrounds[formatedDate].Add(grnd);
                                             slotFound = true;
                                         }
