@@ -157,7 +157,7 @@ namespace NewHorizon.CronJob
                                 {
                                     foreach (var groundSlot in groundSlots.Data)
                                     {
-                                        if (groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 400 && groundSlot.SlotTimeHalf <= 1200)
+                                        if (groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
                                         {
                                             string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
 
