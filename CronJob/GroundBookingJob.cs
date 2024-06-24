@@ -90,7 +90,7 @@ namespace NewHorizon.CronJob
             // Initialize the HttpClient
             using (HttpClient client = new HttpClient())
             {
-                for (int i = 3; i < 60; i++)
+                for (int i = 3; i < 35; i++)
                 {
                     DateTime dateTime = DateTime.Now.AddDays(i);
                     if (dateTime.DayOfWeek != DayOfWeek.Sunday && dateTime.DayOfWeek != DayOfWeek.Saturday)
