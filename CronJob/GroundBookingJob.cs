@@ -93,7 +93,7 @@ namespace NewHorizon.CronJob
                 for (int i = 3; i < 35; i++)
                 {
                     DateTime dateTime = DateTime.Now.AddDays(i);
-                    if (dateTime.DayOfWeek != DayOfWeek.Sunday && dateTime.DayOfWeek != DayOfWeek.Saturday)
+                    if (dateTime.DayOfWeek != DayOfWeek.Sunday && dateTime.DayOfWeek != DayOfWeek.Saturday && dateTime.DayOfWeek != DayOfWeek.Friday)
                     {
                         continue;
                     }
@@ -157,6 +157,7 @@ namespace NewHorizon.CronJob
                                 {
                                     foreach (var groundSlot in groundSlots.Data)
                                     {
+                                        bool slotFound = false;
                                         if (groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
                                         {
                                             string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
@@ -165,6 +166,21 @@ namespace NewHorizon.CronJob
                                             _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
                                             
                                             AddedGrounds[formatedDate].Add(grnd);
+                                            slotFound = true;
+                                        }
+                                        // Friday slot.
+                                        if (dateTime.DayOfWeek == DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 1000 && groundSlot.SlotTimeHalf <= 1200)
+                                        {
+                                            string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
+
+                                            // send mail.
+                                            _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
+
+                                            AddedGrounds[formatedDate].Add(grnd);
+                                            slotFound = true;
+                                        }
+                                        if (slotFound)
+                                        {
                                             return;
                                         }
                                     }
