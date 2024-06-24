@@ -92,6 +92,8 @@ namespace NewHorizon.CronJob
             {
                 for (int i = 3; i < 35; i++)
                 {
+                    bool daySlotFound = false;
+
                     DateTime dateTime = DateTime.Now.AddDays(i);
                     if (dateTime.DayOfWeek != DayOfWeek.Sunday && dateTime.DayOfWeek != DayOfWeek.Saturday && dateTime.DayOfWeek != DayOfWeek.Friday)
                     {
@@ -157,7 +159,6 @@ namespace NewHorizon.CronJob
                                 {
                                     foreach (var groundSlot in groundSlots.Data)
                                     {
-                                        bool slotFound = false;
 
                                         if (dateTime.DayOfWeek != DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
                                         {
@@ -167,7 +168,7 @@ namespace NewHorizon.CronJob
                                             _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
 
                                             AddedGrounds[formatedDate].Add(grnd);
-                                            slotFound = true;
+                                            daySlotFound = true;
                                         }
                                         // Friday slot.
                                         if (dateTime.DayOfWeek == DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate <= 12000 && groundSlot.SlotTimeHalf >= 1000 && groundSlot.SlotTimeHalf <= 1200)
@@ -178,11 +179,7 @@ namespace NewHorizon.CronJob
                                             _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
 
                                             AddedGrounds[formatedDate].Add(grnd);
-                                            slotFound = true;
-                                        }
-                                        if (slotFound)
-                                        {
-                                            return;
+                                            daySlotFound = true;
                                         }
                                     }
                                 }
@@ -193,6 +190,10 @@ namespace NewHorizon.CronJob
                             // do nothing.
                             Console.WriteLine("Exception");
                         }
+                    }
+                    if (daySlotFound)
+                    {
+                        return;
                     }
                 }
 
