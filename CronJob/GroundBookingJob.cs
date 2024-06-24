@@ -142,7 +142,7 @@ namespace NewHorizon.CronJob
                             continue;
                         }
 
-                        await Task.Delay(500);
+                        await Task.Delay(100);
                         try
                         {
                             using (Stream responseStream = await response.Content.ReadAsStreamAsync())
