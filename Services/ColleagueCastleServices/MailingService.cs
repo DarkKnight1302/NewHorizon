@@ -18,7 +18,7 @@ namespace NewHorizon.Services.ColleagueCastleServices
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Ground Booking Bot", "admin@colleaguecastle.in"));
-            message.To.Add(new MailboxAddress("Cricket Fan", emailAddress));
+            message.To.Add(new MailboxAddress("Robin", emailAddress));
             message.Subject = subject;
             message.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {

@@ -1,7 +1,9 @@
 ﻿using GoogleApi.Entities.Maps.DistanceMatrix.Response;
+using Microsoft.AspNetCore.Http;
 using NewHorizon.Models;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using Newtonsoft.Json;
+using System.Globalization;
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Web;
@@ -10,8 +12,9 @@ namespace NewHorizon.CronJob
 {
     public class GroundBookingJob : IGroundBookingJob
     {
-        private const double IntervalInMilliseconds = 6 * 60 * 60 * 1000;
+        private const double IntervalInMilliseconds = 3 * 60 * 60 * 1000;
         private readonly IMailingService _mailingService;
+        private Dictionary<string, List<string>> AddedGrounds = new Dictionary<string, List<string>>();
         private readonly List<string> grounds = new List<string>()
         {
             "srrc1",
@@ -82,6 +85,8 @@ namespace NewHorizon.CronJob
 
             string url = "https://www.gwsportsapp.in/ajax-handler?t=gsearch&action=getSlotsForGroundSport";
 
+            CleanUp(DateTime.Now.AddDays(-60));
+
             // Initialize the HttpClient
             using (HttpClient client = new HttpClient())
             {
@@ -95,6 +100,15 @@ namespace NewHorizon.CronJob
                     string formatedDate = dateTime.ToString("yyyy-MM-dd");
                     foreach (string grnd in grounds)
                     {
+                        if (!AddedGrounds.ContainsKey(formatedDate))
+                        {
+                            AddedGrounds[formatedDate] = new List<string>();
+                        }
+                        if (AddedGrounds[formatedDate].Count >= 3)
+                        {
+                            break;
+                        }
+
                         // Set up the headers
                         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
                         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
@@ -113,7 +127,7 @@ namespace NewHorizon.CronJob
                         client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\"Windows\"");
 
                         // Create the form URL-encoded content
-                        // string value = "{\"l\":\"hyderabad\",\"g\":\"srrc1\",\"s\":\"cricket\",\"d\":\"2024-07-21\"}";
+
                         var obj = new { l = "hyderabad", g = grnd, s = "cricket", d = formatedDate };
                         string value = JsonConvert.SerializeObject(obj);
                         string encoded = HttpUtility.UrlEncode(value);
@@ -127,7 +141,8 @@ namespace NewHorizon.CronJob
                         {
                             continue;
                         }
-                        // Read the response content
+
+                        await Task.Delay(500);
                         try
                         {
                             using (Stream responseStream = await response.Content.ReadAsStreamAsync())
@@ -145,11 +160,11 @@ namespace NewHorizon.CronJob
                                         if (groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 400 && groundSlot.SlotTimeHalf <= 1200)
                                         {
                                             string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
+
                                             // send mail.
-                                            _ = Task.Run(() =>
-                                            {
-                                                _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
-                                            });
+                                            _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
+                                            
+                                            AddedGrounds[formatedDate].Add(grnd);
                                             return;
                                         }
                                     }
@@ -164,6 +179,24 @@ namespace NewHorizon.CronJob
                     }
                 }
 
+            }
+        }
+
+        private void CleanUp(DateTime pastDate)
+        {
+            List<string> removeKeys = new List<string>();
+            string format = "yyyy-MM-dd";
+            foreach (var kv in AddedGrounds)
+            {
+                DateTime date = DateTime.ParseExact(kv.Key, format, CultureInfo.InvariantCulture);
+                if (date < pastDate)
+                {
+                    removeKeys.Add(kv.Key);
+                }
+            }
+            foreach (var key in removeKeys)
+            {
+                AddedGrounds.Remove(key);
             }
         }
     }
