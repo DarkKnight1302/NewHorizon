@@ -12,7 +12,7 @@ namespace NewHorizon.CronJob
 {
     public class GroundBookingJob : IGroundBookingJob
     {
-        private const double IntervalInMilliseconds = 3 * 60 * 60 * 1000;
+        private const double IntervalInMilliseconds = 6 * 60 * 60 * 1000;
         private readonly IMailingService _mailingService;
         private Dictionary<string, List<string>> AddedGrounds = new Dictionary<string, List<string>>();
         private readonly List<string> grounds = new List<string>()
@@ -184,6 +184,10 @@ namespace NewHorizon.CronJob
 
                                             AddedGrounds[formatedDate].Add(grnd);
                                             daySlotFound = true;
+                                        }
+                                        if (daySlotFound)
+                                        {
+                                            return;
                                         }
                                     }
                                 }
