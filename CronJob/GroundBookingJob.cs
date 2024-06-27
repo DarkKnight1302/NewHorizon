@@ -199,10 +199,6 @@ namespace NewHorizon.CronJob
                             Console.WriteLine("Exception");
                         }
                     }
-                    if (daySlotFound)
-                    {
-                        return;
-                    }
                 }
 
             }
