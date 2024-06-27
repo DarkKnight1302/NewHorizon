@@ -12,7 +12,7 @@ namespace NewHorizon.CronJob
 {
     public class GroundBookingJob : IGroundBookingJob
     {
-        private const double IntervalInMilliseconds = 6 * 60 * 60 * 1000;
+        private const double IntervalInMilliseconds = 21600000;
         private readonly IMailingService _mailingService;
         private Dictionary<string, List<string>> AddedGrounds = new Dictionary<string, List<string>>();
         private readonly List<string> grounds = new List<string>()
@@ -42,7 +42,6 @@ namespace NewHorizon.CronJob
             "suresh-cricket-ground", // 22 km
             "sz-cricket-ground", // 22 km
             "beside-arun-gardens,chilukuru-balaji-temple-road,hyderabad-500075", // 22 km
-            "msk-cricket-ground-vattinagulapally", // 14 km
             "olympus-zeus", // 25 km
             "mps-cricket-ground-shamshabad", // 25km
             "sr-cricket-ground", //25 km
@@ -55,6 +54,7 @@ namespace NewHorizon.CronJob
             "sukruth-cricket-ground", // 27 km
             "hitman-azhit-cricket-ground", // 27 km
             "rao's-cricket-ground", // 27km
+            "msk-cricket-ground-vattinagulapally", // 14 km
             "vvr2-cricket-ground", //22km
             "reet-cricket-club", // 30 km
             "dcc-sports-arena", // 9.5 km
@@ -72,7 +72,7 @@ namespace NewHorizon.CronJob
             t.Interval = IntervalInMilliseconds;
             t.Enabled = true;
             t.Elapsed += T_Elapsed;
-            Task.Run(() => Run());
+           // Task.Run(() => Run());
         }
 
         private void T_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
