@@ -22,6 +22,7 @@ public class PingController : ControllerBase
     [HttpGet(Name = "ping")]
     public bool Get() 
     {
+        this._logger.LogInformation("Hit ping API");
         return true;
     }
 }
