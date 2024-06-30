@@ -1,4 +1,5 @@
-﻿using NewHorizon.Models;
+﻿using Microsoft.Extensions.Caching.Memory;
+using NewHorizon.Models;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using Newtonsoft.Json;
 using Quartz;
@@ -13,7 +14,7 @@ namespace NewHorizon.CronJob
     {
         private readonly IMailingService _mailingService;
         private readonly ILogger _logger;
-        private Dictionary<string, List<string>> AddedGrounds = new Dictionary<string, List<string>>();
+        private readonly IMemoryCache _memoryCache;
         private readonly List<string> grounds = new List<string>()
         {
             "srrc1",
@@ -63,18 +64,17 @@ namespace NewHorizon.CronJob
             "ballebaaz-maidan"
         };
 
-        public GroundBookingJob(IMailingService mailingService, ILogger<GroundBookingJob> logger)
+        public GroundBookingJob(IMailingService mailingService, ILogger<GroundBookingJob> logger, IMemoryCache memoryCache)
         {
             _mailingService = mailingService;
             _logger = logger;
+            this._memoryCache = memoryCache;
         }
 
         private async Task RunGroundBooking()
         {
-
+            this._logger.LogInformation("Starting booking job");
             string url = "https://www.gwsportsapp.in/ajax-handler?t=gsearch&action=getSlotsForGroundSport";
-
-            CleanUp(DateTime.Now.AddDays(-60));
 
             // Initialize the HttpClient
             using (HttpClient client = new HttpClient())
@@ -107,19 +107,21 @@ namespace NewHorizon.CronJob
                     string formatedDate = dateTime.ToString("yyyy-MM-dd");
                     foreach (string grnd in grounds)
                     {
-                        if (!AddedGrounds.ContainsKey(formatedDate))
+                        this._logger.LogInformation($"Checking for ground {grnd} : {formatedDate}");
+                        List<string> addedGrounds = this._memoryCache.GetOrCreate(formatedDate, e =>
                         {
-                            AddedGrounds[formatedDate] = new List<string>();
-                        }
-                        if (AddedGrounds[formatedDate].Contains(grnd))
+                            e.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                            return new List<string>();
+                        });
+                        if (addedGrounds.Contains(grnd))
                         {
                             continue;
                         }
-                        if (AddedGrounds[formatedDate].Count >= 3)
+                        if (addedGrounds.Count > 1)
                         {
                             break;
                         }
-
+                        
                         client.DefaultRequestHeaders.Referrer = new Uri($"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}");
                         // Create the form URL-encoded content
 
@@ -129,15 +131,16 @@ namespace NewHorizon.CronJob
                         var content = new StringContent($"data={encoded}");
                         content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded") { CharSet = "UTF-8" };
 
-                        // Send the POST request
-                        HttpResponseMessage response = await client.PostAsync(url, content);
-
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            continue;
-                        }
                         try
                         {
+                            // Send the POST request
+                            HttpResponseMessage response = await client.PostAsync(url, content);
+
+                            if (!response.IsSuccessStatusCode)
+                            {
+                                this._logger.LogError("Failure response from server");
+                                continue;
+                            }
                             string responseString = string.Empty;
                             using (Stream responseStream = await response.Content.ReadAsStreamAsync())
                             {
@@ -178,21 +181,23 @@ namespace NewHorizon.CronJob
                                     {
                                         string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
 
+                                        this._logger.LogInformation("Sending mail");
                                         // send mail.
                                         _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
 
-                                        AddedGrounds[formatedDate].Add(grnd);
+                                        addedGrounds.Add(grnd);
                                         daySlotFound = true;
                                     }
                                     // Friday slot.
                                     if (dateTime.DayOfWeek == DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate <= 12000 && groundSlot.SlotTimeHalf >= 1000 && groundSlot.SlotTimeHalf <= 1200)
                                     {
                                         string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
-
+                                        
+                                        this._logger.LogInformation("Sending mail");
                                         // send mail.
                                         _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
 
-                                        AddedGrounds[formatedDate].Add(grnd);
+                                        addedGrounds.Add(grnd);
                                         daySlotFound = true;
                                     }
                                     if (daySlotFound)
@@ -202,33 +207,14 @@ namespace NewHorizon.CronJob
                                 }
                             }
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
-                            // do nothing.
-                            Console.WriteLine("Exception");
+                            this._logger.LogError($"Exception in ground booking {ex.Message} \n {ex.StackTrace}");
                         }
                         await Task.Delay(250);
                     }
                 }
 
-            }
-        }
-
-        private void CleanUp(DateTime pastDate)
-        {
-            List<string> removeKeys = new List<string>();
-            string format = "yyyy-MM-dd";
-            foreach (var kv in AddedGrounds)
-            {
-                DateTime date = DateTime.ParseExact(kv.Key, format, CultureInfo.InvariantCulture);
-                if (date < pastDate)
-                {
-                    removeKeys.Add(kv.Key);
-                }
-            }
-            foreach (var key in removeKeys)
-            {
-                AddedGrounds.Remove(key);
             }
         }
 
