@@ -86,7 +86,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
                         .ForJob(jobKey)
                         .WithIdentity("MyJob-trigger")
-                        .WithCronSchedule("0 0 */1 * * ?"));
+                        .WithCronSchedule("0 */2 * * * ?"));
     //.WithCronSchedule("0 0 12 * * ?")); // This is a CRON expression for daily at noon
 });
 
@@ -94,12 +94,12 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
-builder.Services.AddAuthentication()
+/*builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration.GetValue<string>("GOOGLE_AUTH_CLIENTID") ?? Environment.GetEnvironmentVariable("GOOGLE_AUTH_CLIENTID");
         options.ClientSecret = builder.Configuration.GetValue<string>("GOOGLE_AUTH_CLIENT_SECRET") ?? Environment.GetEnvironmentVariable("GOOGLE_AUTH_CLIENT_SECRET");
-    });
+    });*/
 builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
@@ -113,7 +113,7 @@ app.UseSwaggerUI(c =>
 
 app.UseCors(builder =>
 {
-    builder.WithOrigins("https://www.colleaguecastle.in", "https://localhost:7280")
+    builder.WithOrigins("https://www.colleaguecastle.in", "https://localhost:7224")
            .AllowAnyMethod()
            .AllowAnyHeader()
            .AllowCredentials();

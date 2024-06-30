@@ -183,7 +183,7 @@ namespace NewHorizon.CronJob
 
                                         this._logger.LogInformation("Sending mail");
                                         // send mail.
-                                        _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
+                                        /*_mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");*/
 
                                         addedGrounds.Add(grnd);
                                         daySlotFound = true;
@@ -195,7 +195,7 @@ namespace NewHorizon.CronJob
                                         
                                         this._logger.LogInformation("Sending mail");
                                         // send mail.
-                                        _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
+                                       /* _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");*/
 
                                         addedGrounds.Add(grnd);
                                         daySlotFound = true;
