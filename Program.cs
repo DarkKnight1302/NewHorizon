@@ -120,7 +120,6 @@ app.UseCors(builder =>
 });
 app.UseMiddleware<ApiKeyRateLimiterMiddleware>(new MemoryCache(new MemoryCacheOptions()), TimeSpan.FromMinutes(1));
 app.UseAuthentication();
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
