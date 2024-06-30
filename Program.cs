@@ -19,6 +19,7 @@ using System.Configuration;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NewHorizon.Services.InterviewerCopilotServices.Interfaces;
 using NewHorizon.Services.InterviewerCopilotServices;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,8 +77,23 @@ builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
 builder.Services.AddSingleton<IOpenAIService, OpenAIService>();
 builder.Services.AddSingleton<IGenerateAndSendPasswordService, GenerateAndSendPasswordService>();
 builder.Services.AddSingleton<IShortListedPropertyRepository, ShotlistedPropertyRepository>();
-builder.Services.AddSingleton<IGroundBookingJob, GroundBookingJob>();
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("GroundBookingJob");
 
+    q.AddJob<GroundBookingJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+                        .ForJob(jobKey)
+                        .WithIdentity("MyJob-trigger")
+                        .WithCronSchedule("0 0 */6 * * ?"));
+    //.WithCronSchedule("0 0 12 * * ?")); // This is a CRON expression for daily at noon
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
@@ -88,7 +104,6 @@ builder.Services.AddMemoryCache();
 builder.Services.AddCors();
 builder.Configuration.AddEnvironmentVariables().AddUserSecrets<StartupBase>();
 var app = builder.Build();
-app.Services.GetRequiredService<IGroundBookingJob>();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

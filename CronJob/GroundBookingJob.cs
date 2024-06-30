@@ -1,8 +1,7 @@
-﻿using GoogleApi.Entities.Maps.DistanceMatrix.Response;
-using Microsoft.AspNetCore.Http;
-using NewHorizon.Models;
+﻿using NewHorizon.Models;
 using NewHorizon.Services.ColleagueCastleServices.Interfaces;
 using Newtonsoft.Json;
+using Quartz;
 using System.Globalization;
 using System.IO.Compression;
 using System.Net.Http.Headers;
@@ -10,10 +9,10 @@ using System.Web;
 
 namespace NewHorizon.CronJob
 {
-    public class GroundBookingJob : IGroundBookingJob
+    public class GroundBookingJob : IJob
     {
-        private const double IntervalInMilliseconds = 21600000;
         private readonly IMailingService _mailingService;
+        private readonly ILogger _logger;
         private Dictionary<string, List<string>> AddedGrounds = new Dictionary<string, List<string>>();
         private readonly List<string> grounds = new List<string>()
         {
@@ -64,23 +63,13 @@ namespace NewHorizon.CronJob
             "ballebaaz-maidan"
         };
 
-        public GroundBookingJob(IMailingService mailingService)
+        public GroundBookingJob(IMailingService mailingService, ILogger<GroundBookingJob> logger)
         {
             _mailingService = mailingService;
-            System.Timers.Timer t = new System.Timers.Timer();
-            t.AutoReset = true;
-            t.Interval = IntervalInMilliseconds;
-            t.Enabled = true;
-            t.Elapsed += T_Elapsed;
-           // Task.Run(() => Run());
+            _logger = logger;
         }
 
-        private void T_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
-        {
-            _ = Run();
-        }
-
-        public async Task Run()
+        private async Task RunGroundBooking()
         {
 
             string url = "https://www.gwsportsapp.in/ajax-handler?t=gsearch&action=getSlotsForGroundSport";
@@ -90,7 +79,23 @@ namespace NewHorizon.CronJob
             // Initialize the HttpClient
             using (HttpClient client = new HttpClient())
             {
-                for (int i = 3; i < 35; i++)
+                // Set up the headers
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+                client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("br"));
+                client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US", 0.9));
+                client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-IN", 0.8));
+                client.DefaultRequestHeaders.Add("Origin", "https://www.gwsportsapp.in");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+                client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+                client.DefaultRequestHeaders.Add("sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Microsoft Edge\";v=\"126\"");
+                client.DefaultRequestHeaders.Add("sec-ch-ua-mobile", "?0");
+                client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\"Windows\"");
+
+                for (int i = 3; i < 45; i++)
                 {
                     bool daySlotFound = false;
 
@@ -115,23 +120,7 @@ namespace NewHorizon.CronJob
                             break;
                         }
 
-                        // Set up the headers
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("br"));
-                        client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US", 0.9));
-                        client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-IN", 0.8));
-                        client.DefaultRequestHeaders.Add("Origin", "https://www.gwsportsapp.in");
                         client.DefaultRequestHeaders.Referrer = new Uri($"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}");
-                        client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
-                        client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
-                        client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
-                        client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-                        client.DefaultRequestHeaders.Add("sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Microsoft Edge\";v=\"126\"");
-                        client.DefaultRequestHeaders.Add("sec-ch-ua-mobile", "?0");
-                        client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\"Windows\"");
-
                         // Create the form URL-encoded content
 
                         var obj = new { l = "hyderabad", g = grnd, s = "cricket", d = formatedDate };
@@ -147,48 +136,68 @@ namespace NewHorizon.CronJob
                         {
                             continue;
                         }
-
-                        await Task.Delay(100);
                         try
                         {
+                            string responseString = string.Empty;
                             using (Stream responseStream = await response.Content.ReadAsStreamAsync())
-                            using (GZipStream decompressionStream = new GZipStream(responseStream, CompressionMode.Decompress))
-                            using (StreamReader reader = new StreamReader(decompressionStream))
                             {
-                                string responseString = await reader.ReadToEndAsync();
-                                // Output the response
-                                Console.WriteLine(responseString);
-                                GroundSlots groundSlots = JsonConvert.DeserializeObject<GroundSlots>(responseString);
-                                if (groundSlots != null && groundSlots.Status.Equals("success") && groundSlots.Data != null)
+                                Stream decompressionStream = null;
+                                if (response.Content.Headers.ContentEncoding.Contains("gzip"))
                                 {
-                                    foreach (var groundSlot in groundSlots.Data)
+                                    decompressionStream = new GZipStream(responseStream, CompressionMode.Decompress);
+                                }
+                                else if (response.Content.Headers.ContentEncoding.Contains("deflate"))
+                                {
+                                    decompressionStream = new DeflateStream(responseStream, CompressionMode.Decompress);
+                                }
+                                else if (response.Content.Headers.ContentEncoding.Contains("br"))
+                                {
+                                    decompressionStream = new BrotliStream(responseStream, CompressionMode.Decompress);
+                                }
+                                else
+                                {
+                                    decompressionStream = responseStream; // No compression
+                                }
+
+                                using (decompressionStream)
+                                using (StreamReader reader = new StreamReader(decompressionStream))
+                                {
+                                    responseString = await reader.ReadToEndAsync();
+                                    // Output the response
+                                    _logger.LogInformation(responseString);
+                                }
+                            }
+
+                            GroundSlots groundSlots = JsonConvert.DeserializeObject<GroundSlots>(responseString);
+                            if (groundSlots != null && groundSlots.Status.Equals("success") && groundSlots.Data != null)
+                            {
+                                foreach (var groundSlot in groundSlots.Data)
+                                {
+
+                                    if (dateTime.DayOfWeek != DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
                                     {
+                                        string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
 
-                                        if (dateTime.DayOfWeek != DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate < 9000 && groundSlot.SlotTimeHalf >= 350 && groundSlot.SlotTimeHalf <= 1200)
-                                        {
-                                            string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
+                                        // send mail.
+                                        _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
 
-                                            // send mail.
-                                            _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
+                                        AddedGrounds[formatedDate].Add(grnd);
+                                        daySlotFound = true;
+                                    }
+                                    // Friday slot.
+                                    if (dateTime.DayOfWeek == DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate <= 12000 && groundSlot.SlotTimeHalf >= 1000 && groundSlot.SlotTimeHalf <= 1200)
+                                    {
+                                        string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
 
-                                            AddedGrounds[formatedDate].Add(grnd);
-                                            daySlotFound = true;
-                                        }
-                                        // Friday slot.
-                                        if (dateTime.DayOfWeek == DayOfWeek.Friday && groundSlot != null && !groundSlot.IsBooked && groundSlot.Rate <= 12000 && groundSlot.SlotTimeHalf >= 1000 && groundSlot.SlotTimeHalf <= 1200)
-                                        {
-                                            string groundLink = $"https://www.gwsportsapp.in/hyderabad/cricket/booking-sports-online-venue/{grnd}";
+                                        // send mail.
+                                        _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
 
-                                            // send mail.
-                                            _mailingService.SendGroundMail("robin.cool.13@gmail.com", "Friday Ground Available", $"Cricket ground {groundLink} available for date {formatedDate}, timing {groundSlot.SlotStartTime}");
-
-                                            AddedGrounds[formatedDate].Add(grnd);
-                                            daySlotFound = true;
-                                        }
-                                        if (daySlotFound)
-                                        {
-                                            return;
-                                        }
+                                        AddedGrounds[formatedDate].Add(grnd);
+                                        daySlotFound = true;
+                                    }
+                                    if (daySlotFound)
+                                    {
+                                        return;
                                     }
                                 }
                             }
@@ -198,6 +207,7 @@ namespace NewHorizon.CronJob
                             // do nothing.
                             Console.WriteLine("Exception");
                         }
+                        await Task.Delay(250);
                     }
                 }
 
@@ -220,6 +230,11 @@ namespace NewHorizon.CronJob
             {
                 AddedGrounds.Remove(key);
             }
+        }
+
+        public async Task Execute(IJobExecutionContext context)
+        {
+            await RunGroundBooking();
         }
     }
 }
