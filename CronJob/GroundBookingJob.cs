@@ -110,7 +110,7 @@ namespace NewHorizon.CronJob
                         this._logger.LogInformation($"Checking for ground {grnd} : {formatedDate}");
                         List<string> addedGrounds = this._memoryCache.GetOrCreate(formatedDate, e =>
                         {
-                            e.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                            e.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(45);
                             return new List<string>();
                         });
                         if (addedGrounds.Contains(grnd))
