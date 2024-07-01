@@ -86,7 +86,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
                         .ForJob(jobKey)
                         .WithIdentity("MyJob-trigger")
-                        .WithCronSchedule("0 0 */1 * * ?"));
+                        .WithCronSchedule("0 0 */6 * * ?"));
     //.WithCronSchedule("0 0 12 * * ?")); // This is a CRON expression for daily at noon
 });
 
